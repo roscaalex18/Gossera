@@ -1,0 +1,141 @@
+:host {
+  display: block;
+}
+
+.dogs-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.dogs-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+}
+
+p {
+  margin: 0.35rem 0 0;
+  opacity: 0.85;
+}
+
+.dogs-page__stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.dogs-page__stats article {
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 12px;
+  padding: 0.6rem 0.9rem;
+  min-width: 132px;
+}
+
+.dogs-page__stats span {
+  display: block;
+  font-size: 0.8rem;
+  color: #345;
+}
+
+.dogs-page__stats strong {
+  font-size: 1.3rem;
+}
+
+.dogs-page__filters {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  border: 1px solid #8ca9cc;
+  border-radius: 999px;
+  background: #f5f9ff;
+  color: #143a62;
+  padding: 0.55rem 0.95rem;
+  cursor: pointer;
+}
+
+.filter-btn--active {
+  background: #143a62;
+  color: #ffffff;
+}
+
+.dogs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.dog-card {
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #d7e1ef;
+  box-shadow: 0 8px 22px rgba(16, 44, 72, 0.08);
+}
+
+.dog-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.dog-card__content {
+  padding: 0.85rem;
+}
+
+.dog-card__title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.dog-card__title-row h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.priority-pill {
+  display: inline-block;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+}
+
+.priority-alta {
+  background: #ffe3e3;
+  color: #991b1b;
+}
+
+.priority-media {
+  background: #fff4d4;
+  color: #8a5500;
+}
+
+.priority-baja {
+  background: #e6f5ec;
+  color: #0d6b3a;
+}
+
+.dog-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.5rem;
+  color: #2f4963;
+  font-size: 0.9rem;
+}
+
+.pending {
+  font-weight: 700;
+  color: #b11c1c;
+}

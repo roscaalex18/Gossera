@@ -1,0 +1,67 @@
+<section class="dogs-page">
+  <header class="dogs-page__header">
+    <div>
+      <h1>Perros de la perrera</h1>
+      <p>Gestiona los paseos diarios con una base de datos local.</p>
+    </div>
+
+    <div class="dogs-page__stats" aria-label="Resumen de perros">
+      <article>
+        <span>Total</span>
+        <strong>{{ totalDogs() }}</strong>
+      </article>
+      <article>
+        <span>Pendientes hoy</span>
+        <strong>{{ pendingDogs() }}</strong>
+      </article>
+    </div>
+  </header>
+
+  <div class="dogs-page__filters" role="group" aria-label="Filtrar perros">
+    <button
+      type="button"
+      class="filter-btn"
+      [class.filter-btn--active]="filterMode() === 'todos'"
+      (click)="setFilter('todos')"
+    >
+      Todos
+    </button>
+
+    <button
+      type="button"
+      class="filter-btn"
+      [class.filter-btn--active]="filterMode() === 'soloPendientes'"
+      (click)="setFilter('soloPendientes')"
+    >
+      Solo pendientes
+    </button>
+  </div>
+
+  <div class="dogs-grid">
+    @for (dog of dogs(); track trackByDogId($index, dog)) {
+      <article class="dog-card">
+        <img [src]="dog.fotoUrl" [alt]="'Foto de ' + dog.nombre" loading="lazy" />
+
+        <div class="dog-card__content">
+          <div class="dog-card__title-row">
+            <h2>{{ dog.nombre }}</h2>
+            <span class="priority-pill" [ngClass]="priorityClass(dog.prioridadPaseo)">
+              Prioridad {{ dog.prioridadPaseo }}
+            </span>
+          </div>
+
+          <p>{{ dog.raza }} · {{ dog.edad }} años · Energia {{ dog.energia }}</p>
+
+          <div class="dog-card__meta">
+            <span>
+              Ultimo paseo: {{ dog.ultimoPaseo | date: 'dd/MM HH:mm' }}
+            </span>
+            <span [class.pending]="dog.necesitaPaseoHoy">
+              {{ dog.necesitaPaseoHoy ? 'Necesita paseo hoy' : 'Paseo al dia' }}
+            </span>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+</section>

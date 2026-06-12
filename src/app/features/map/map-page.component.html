@@ -1,0 +1,161 @@
+<section class="map-page">
+
+  <header class="map-page__header">
+    <h1>Mapa de la Gossera</h1>
+    <p>Assignació aleatòria de perros · Clica una casella per veure el detall</p>
+  </header>
+
+  <div class="map-layout">
+
+    <!-- ═══════════════════════════════════════════════════════
+         SVG MAP
+    ════════════════════════════════════════════════════════ -->
+    <div class="map-canvas-wrap">
+      <svg class="map-svg" viewBox="0 0 520 760" xmlns="http://www.w3.org/2000/svg">
+
+
+        <!-- ── CORREDOR QUARANTENA (línia separadora) ───────────── -->
+        <line x1="308" y1="68" x2="462" y2="68" stroke="#2a3a26" stroke-width="10"/>
+
+        <!-- ── TOTES LES CASELLES (via cellRects) ────────────────── -->
+        @for (cr of cellRects(); track cr.cell.id) {
+
+          <!-- PATIO (negre) – no clicable ──────────────────────── -->
+          @if (cr.cell.type === 'patio') {
+            <rect
+              [attr.x]="cr.x" [attr.y]="cr.y"
+              [attr.width]="cr.w" [attr.height]="cr.h"
+              fill="#1c1c1c" stroke="#4a4a4a" stroke-width="2" rx="3"
+            />
+            <text
+              [attr.x]="cr.x + cr.w / 2" [attr.y]="cr.y + cr.h / 2 + 4"
+              font-size="8" fill="#555" text-anchor="middle"
+            >{{ cr.cell.label }}</text>
+          }
+
+          <!-- TOTES LES CASELLES CLICABLES ──────────────────────── -->
+          @if (cr.cell.type !== 'patio') {
+            <g
+              class="cell-group"
+              (click)="selectCell(cr.cell)"
+              role="button"
+              tabindex="0"
+              [attr.aria-label]="cr.cell.label"
+            >
+              <rect
+                [attr.x]="cr.x" [attr.y]="cr.y"
+                [attr.width]="cr.w" [attr.height]="cr.h"
+                [attr.fill]="colorOf(cr.cell.type)"
+                [attr.stroke]="selectedCell()?.id === cr.cell.id ? '#fff' : 'rgba(0,0,0,.5)'"
+                [attr.stroke-width]="selectedCell()?.id === cr.cell.id ? 3 : 1.5"
+                rx="3"
+              />
+
+              @if (cr.cell.accessViaPatio) {
+                <text [attr.x]="cr.x + 3" [attr.y]="cr.y + 9" font-size="7" fill="rgba(255,255,160,.9)">⚠</text>
+              }
+
+              <!-- nom de la casella -->
+              <text
+                [attr.x]="cr.x + cr.w / 2"
+                [attr.y]="cr.y + 12"
+                font-size="7" font-weight="600"
+                fill="rgba(255,255,255,.9)" text-anchor="middle"
+              >{{ cr.cell.label }}</text>
+
+              <!-- nom dels perros (màx 2 línies) -->
+              @for (dId of cr.cell.dogIds; track dId; let di = $index) {
+                @if (di < 2) {
+                  <text
+                    [attr.x]="cr.x + cr.w / 2"
+                    [attr.y]="cr.y + 22 + di * 9"
+                    font-size="6" fill="rgba(255,255,255,.85)" text-anchor="middle"
+                  >{{ shortName(dogOf(dId)?.nombre ?? '') }}</text>
+                }
+              }
+              @if (cr.cell.dogIds.length > 2) {
+                <text
+                  [attr.x]="cr.x + cr.w / 2" [attr.y]="cr.y + cr.h - 3"
+                  font-size="6" fill="rgba(255,255,160,.9)" text-anchor="middle"
+                >+{{ cr.cell.dogIds.length - 2 }}</text>
+              }
+            </g>
+          }
+        }
+
+        <!-- etiquetes de zona -->
+        <text x="312" y="16" font-size="8" fill="#93c5fd" font-weight="600">QUARANTENA</text>
+        <text x="12" y="136" font-size="7" fill="#aaa">← PATIOS</text>
+        <text x="365" y="136" font-size="7" fill="#fca5a5">CHENILS →</text>
+
+      </svg>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SIDE PANEL – cell detail
+    ════════════════════════════════════════════════════════ -->
+    @if (selectedCell(); as cell) {
+      <aside class="map-panel">
+        <button class="map-panel__close" (click)="closePanel()" aria-label="Tancar panell">✕</button>
+
+        <div class="map-panel__type-badge" [style.background]="colorOf(cell.type)">
+          {{ cell.type === 'quarantena'      ? 'Quarantena'
+           : cell.type === 'chenil-varios'   ? 'Chenil de varios'
+           : cell.type === 'chenil-solitari' ? 'Chenil solitari'
+           : cell.type === 'chenil-normal'   ? 'Chenil normal'
+           : cell.type === 'jaula-exterior'  ? 'Jaula exterior'
+           : cell.type }}
+        </div>
+
+        <h2>{{ cell.label }}</h2>
+
+        @if (cell.accessViaPatio) {
+          <p class="map-panel__warn">⚠ Accés via pati</p>
+        }
+
+        <p class="map-panel__meta">
+          Capacitat: <strong>{{ cell.id === 'Q1' ? 8 : cell.capacity }}</strong>
+          · Ocupació: <strong>{{ cell.dogIds.length }}</strong>
+        </p>
+
+        <ul class="map-panel__dogs">
+          @for (dId of cell.dogIds; track dId) {
+            @if (dogOf(dId); as dog) {
+              <li class="dog-item">
+                <img [src]="dog.fotoUrl" [alt]="dog.nombre" loading="lazy" />
+                <div>
+                  <strong>{{ dog.nombre }}</strong>
+                  <span>{{ dog.id }}</span>
+                  <span>{{ dog.raza }}</span>
+                  @if (dog.color) { <span>{{ dog.color }}</span> }
+                  @if (dog.llugarRecollida) { <span>📍 {{ dog.llugarRecollida }}</span> }
+                  <span
+                    class="priority-dot"
+                    [class.priority-dot--alta]="dog.prioridadPaseo === 'alta'"
+                    [class.priority-dot--media]="dog.prioridadPaseo === 'media'"
+                    [class.priority-dot--baja]="dog.prioridadPaseo === 'baja'"
+                  >Prioritat {{ dog.prioridadPaseo }}</span>
+                </div>
+              </li>
+            }
+          }
+          @if (cell.dogIds.length === 0) {
+            <li class="dog-item dog-item--empty">Casella buida</li>
+          }
+        </ul>
+      </aside>
+    }
+
+  </div>
+
+  <!-- ─── LEGEND ──────────────────────────────────────────── -->
+  <footer class="map-legend">
+    @for (item of legend; track item.type) {
+      <div class="legend-item">
+        <span class="legend-swatch" [style.background]="colorOf(item.type)"></span>
+        {{ item.label }}
+      </div>
+    }
+  </footer>
+
+</section>

@@ -1,0 +1,214 @@
+.map-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  height: 100%;
+
+  &__header {
+    h1 { margin: 0 0 0.2rem; }
+    p  { margin: 0; color: #607080; font-size: 0.85rem; }
+  }
+}
+
+// ── Main layout ────────────────────────────────────────────────────────────
+.map-layout {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  flex: 1;
+  min-height: 0;
+}
+
+// ── SVG canvas ─────────────────────────────────────────────────────────────
+.map-canvas-wrap {
+  flex: 0 0 auto;
+  background: #1e2d1a;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #334;
+  box-shadow: 0 4px 20px rgba(0,0,0,.35);
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+}
+
+.map-svg {
+  display: block;
+  width: 520px;
+  max-width: 100%;
+  height: auto;
+}
+
+.cell-group {
+  cursor: pointer;
+  transition: filter 0.15s;
+
+  &:hover .cell-rect {
+    filter: brightness(1.25);
+  }
+}
+
+.cell-rect {
+  transition: stroke 0.15s, stroke-width 0.15s;
+
+  &--selected {
+    stroke: #fff !important;
+    stroke-width: 3 !important;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,.5));
+  }
+}
+
+.cell-text {
+  pointer-events: none;
+  user-select: none;
+}
+
+// ── Side panel ─────────────────────────────────────────────────────────────
+.map-panel {
+  flex: 1 1 280px;
+  min-width: 220px;
+  max-width: 340px;
+  background: #fff;
+  border: 1px solid #d7e1ef;
+  border-radius: 14px;
+  padding: 1rem 1rem 1.25rem;
+  position: relative;
+  animation: slide-in 0.18s ease;
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  &__close {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #90a0b0;
+    line-height: 1;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+
+    &:hover { background: #f0f4f8; color: #3a4a5a; }
+  }
+
+  &__type-badge {
+    display: inline-block;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.05rem;
+    color: #1a2a3a;
+  }
+
+  &__warn {
+    margin: 0 0 0.35rem;
+    font-size: 0.78rem;
+    color: #c05000;
+    font-weight: 600;
+  }
+
+  &__meta {
+    margin: 0 0 0.75rem;
+    font-size: 0.82rem;
+    color: #607080;
+  }
+}
+
+// ── Dog list inside panel ───────────────────────────────────────────────────
+.map-panel__dogs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.dog-item {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+
+  img {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    border: 1px solid #e0e8f0;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    font-size: 0.78rem;
+    color: #4a5a6a;
+    min-width: 0;
+
+    strong {
+      font-size: 0.88rem;
+      color: #1a2a3a;
+    }
+  }
+
+  &--empty {
+    color: #90a0b0;
+    font-style: italic;
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
+  }
+}
+
+.priority-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  width: fit-content;
+
+  &--alta  { background: #fee2e2; color: #b91c1c; }
+  &--media { background: #fef3c7; color: #92400e; }
+  &--baja  { background: #dcfce7; color: #166534; }
+}
+
+// ── Legend ─────────────────────────────────────────────────────────────────
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.25rem;
+  font-size: 0.78rem;
+  color: #607080;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+  flex-shrink: 0;
+}
