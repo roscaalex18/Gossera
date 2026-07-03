@@ -1,0 +1,297 @@
+<div class="sheet-backdrop" (click)="onBackdropClick()"></div>
+
+<aside
+  class="sheet sheet--edit"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Editar ficha del perro"
+>
+  <header class="sheet__header">
+    <div class="sheet__title">
+      <h2>Editar ficha</h2>
+      @if (dog(); as d) {
+        <p>{{ d.nombre }} · {{ d.id }}</p>
+      }
+    </div>
+    <button
+      type="button"
+      class="icon-btn"
+      (click)="onCloseClick()"
+      [disabled]="busy()"
+      aria-label="Cerrar"
+    >×</button>
+  </header>
+
+  <form class="sheet__form" (ngSubmit)="save()" novalidate>
+    @if (errorMessage()) {
+      <p class="sheet__error" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <!-- ================= Datos básicos ================= -->
+    <section class="section">
+      <h3 class="section__title">Datos básicos</h3>
+
+      <div class="grid">
+        <label class="field">
+          <span>Nombre <em>*</em></span>
+          <input
+            type="text"
+            name="nombre"
+            required
+            [ngModel]="nombre()"
+            (ngModelChange)="nombre.set($event)"
+          />
+        </label>
+
+        <label class="field">
+          <span>Raza <em>*</em></span>
+          <input
+            type="text"
+            name="raza"
+            required
+            [ngModel]="raza()"
+            (ngModelChange)="raza.set($event)"
+          />
+        </label>
+
+        <label class="field">
+          <span>Edad</span>
+          <input
+            type="number"
+            name="edad"
+            min="0"
+            max="30"
+            inputmode="numeric"
+            [ngModel]="edad()"
+            (ngModelChange)="edad.set($event)"
+          />
+        </label>
+
+        <label class="field">
+          <span>Energía</span>
+          <select
+            name="energia"
+            [ngModel]="energia()"
+            (ngModelChange)="energia.set($event)"
+          >
+            <option value="baja">Baja</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Prioridad paseo</span>
+          <select
+            name="prioridadPaseo"
+            [ngModel]="prioridadPaseo()"
+            (ngModelChange)="prioridadPaseo.set($event)"
+          >
+            <option value="baja">Baja</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Sexo</span>
+          <select
+            name="sexo"
+            [ngModel]="sexo()"
+            (ngModelChange)="sexo.set($event)"
+          >
+            <option value="">-</option>
+            <option value="male">Macho</option>
+            <option value="female">Hembra</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Color</span>
+          <input
+            type="text"
+            name="color"
+            [ngModel]="color()"
+            (ngModelChange)="color.set($event)"
+          />
+        </label>
+
+        <label class="field">
+          <span>Estado</span>
+          <select
+            name="estado"
+            [ngModel]="estado()"
+            (ngModelChange)="estado.set($event)"
+          >
+            <option value="activo">Activo</option>
+            <option value="adoptado">Adoptado</option>
+            <option value="trasladado">Trasladado</option>
+            <option value="fallecido">Fallecido</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- ================= Avisos de seguridad ================= -->
+    <section class="section">
+      <h3 class="section__title">Avisos de seguridad</h3>
+      <div class="flags-grid">
+        <label class="flag-check">
+          <input
+            type="checkbox"
+            name="esPPP"
+            [ngModel]="esPPP()"
+            (ngModelChange)="esPPP.set($event)"
+          />
+          <span>PPP <small>(Perro Potencialmente Peligroso)</small></span>
+        </label>
+        <label class="flag-check">
+          <input
+            type="checkbox"
+            name="bozalObligatorio"
+            [ngModel]="bozalObligatorio()"
+            (ngModelChange)="bozalObligatorio.set($event)"
+          />
+          <span>Bozal obligatorio</span>
+        </label>
+        <label class="flag-check">
+          <input
+            type="checkbox"
+            name="cuidadoMachos"
+            [ngModel]="cuidadoMachos()"
+            (ngModelChange)="cuidadoMachos.set($event)"
+          />
+          <span>Cuidado con machos</span>
+        </label>
+        <label class="flag-check">
+          <input
+            type="checkbox"
+            name="cuidadoHembras"
+            [ngModel]="cuidadoHembras()"
+            (ngModelChange)="cuidadoHembras.set($event)"
+          />
+          <span>Cuidado con hembras</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- ================= Notas ================= -->
+    <section class="section">
+      <h3 class="section__title">Notas importantes</h3>
+      <textarea
+        class="textarea"
+        name="notas"
+        rows="3"
+        placeholder="Comportamiento, alergias, historia, recomendaciones…"
+        [ngModel]="notas()"
+        (ngModelChange)="notas.set($event)"
+      ></textarea>
+    </section>
+
+    <!-- ================= Fotos ================= -->
+    <section class="section">
+      <h3 class="section__title">Fotos</h3>
+
+      @if ((dog()?.fotos?.length ?? 0) === 0) {
+        <p class="section__empty">Aún no hay fotos.</p>
+      } @else {
+        <ul class="photos-grid">
+          @for (url of dog()?.fotos ?? []; track url; let i = $index) {
+            <li class="photo-tile">
+              <img [src]="url" [alt]="'Foto ' + (i + 1) + ' de ' + (dog()?.nombre ?? '')" loading="lazy" />
+              @if (i === 0) {
+                <span class="photo-tile__badge">★ Principal</span>
+              }
+              <div class="photo-tile__actions">
+                @if (i !== 0) {
+                  <button type="button" class="btn-mini" (click)="makePrimary(url)">Principal</button>
+                }
+                <button type="button" class="btn-mini btn-mini--danger" (click)="removePhoto(url)">Eliminar</button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+
+      <div class="upload-buttons">
+        <label class="btn-primary btn-primary--sm" [class.is-disabled]="uploading()">
+          @if (uploading()) { Subiendo… } @else { Cámara }
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            hidden
+            [disabled]="uploading()"
+            #cameraInput
+            (change)="onFilesSelected(cameraInput)"
+          />
+        </label>
+
+        <label class="btn-secondary btn-secondary--sm" [class.is-disabled]="uploading()">
+          Galería
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            [disabled]="uploading()"
+            #galleryInput
+            (change)="onFilesSelected(galleryInput)"
+          />
+        </label>
+      </div>
+    </section>
+
+    <!-- ================= Zona peligrosa ================= -->
+    <section class="section section--danger">
+      <h3 class="section__title">Zona peligrosa</h3>
+
+      @if (dog()?.estado === 'activo') {
+        <button
+          type="button"
+          class="btn-secondary btn-secondary--full"
+          [disabled]="busy()"
+          (click)="markAsAdopted()"
+        >
+          Marcar como adoptado
+        </button>
+      }
+
+      @if (!deleteConfirm()) {
+        <button
+          type="button"
+          class="btn-danger"
+          [disabled]="busy()"
+          (click)="askDelete()"
+        >
+          Eliminar perro
+        </button>
+      } @else {
+        <p class="section__warn">
+          ¿Seguro? Se borrarán también sus paseos y se liberará su jaula.
+        </p>
+        <div class="danger-actions">
+          <button type="button" class="btn-secondary" (click)="cancelDelete()">Cancelar</button>
+          <button type="button" class="btn-danger" (click)="confirmDelete()">Sí, eliminar</button>
+        </div>
+      }
+    </section>
+
+    <!-- ================= Guardar ================= -->
+    <div class="sheet__actions">
+      <button
+        type="button"
+        class="btn-secondary"
+        [disabled]="busy()"
+        (click)="onCloseClick()"
+      >Cancelar</button>
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="!canSave()"
+      >
+        @if (saving()) { Guardando… } @else { Guardar cambios }
+      </button>
+    </div>
+  </form>
+</aside>

@@ -30,6 +30,32 @@
   border-bottom: 1px solid #eef2f8;
 }
 
+.sheet__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.btn-edit {
+  border: 1px solid #0f4c81;
+  background: #ffffff;
+  color: #0f4c81;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 36px;
+  font-family: inherit;
+  white-space: nowrap;
+
+  &:hover {
+    background: #0f4c81;
+    color: #ffffff;
+  }
+}
+
 .sheet__title {
   flex: 1;
   min-width: 0;
@@ -91,6 +117,99 @@
   border-top: 1px solid #eef2f8;
 }
 
+/* ===== Avisos de seguridad ===== */
+.section--flags {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ppp-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.6rem;
+  background: #7a1414;
+  color: #ffffff;
+  border: 1px solid #5a0e0e;
+  text-transform: uppercase;
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.flag--warning {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+.flag--danger {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+.flag__icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  display: block;
+  flex: 0 0 auto;
+}
+
+/* ===== Grid de datos (read-only) ===== */
+.info-grid {
+  margin: 0;
+  display: grid;
+  gap: 0.5rem 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.info-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.info-grid dt {
+  font-size: 0.72rem;
+  color: #5b7290;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.info-grid dd {
+  margin: 0;
+  color: #0f2e4d;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.notes-readonly {
+  margin: 0;
+  color: #0f2e4d;
+  font-size: 0.92rem;
+  white-space: pre-wrap;
+  padding: 0.6rem 0.7rem;
+  background: #f8fafd;
+  border: 1px solid #e2e9f3;
+  border-radius: 10px;
+}
+
 .section__title {
   margin: 0;
   font-size: 0.85rem;
@@ -121,6 +240,10 @@
   display: grid;
   gap: 0.55rem;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+
+.photos-grid--readonly .photo-tile__actions {
+  display: none;
 }
 
 .photo-tile {

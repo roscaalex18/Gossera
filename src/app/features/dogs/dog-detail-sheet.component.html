@@ -6,7 +6,12 @@
       <h2>{{ dog()?.nombre }}</h2>
       <p>{{ dog()?.id }} · {{ dog()?.raza }} · {{ dog()?.edad }} a</p>
     </div>
-    <button type="button" class="icon-btn" (click)="onCloseClick()" aria-label="Cerrar">×</button>
+    <div class="sheet__header-actions">
+      <button type="button" class="btn-edit" (click)="openEdit()" aria-label="Editar ficha">
+        Editar ficha
+      </button>
+      <button type="button" class="icon-btn" (click)="onCloseClick()" aria-label="Cerrar">×</button>
+    </div>
   </header>
 
   <div class="sheet__body">
@@ -14,75 +19,100 @@
       <p class="sheet__error" role="alert">{{ errorMessage() }}</p>
     }
 
-    <!-- ============ Fotos ============ -->
-    <section class="section">
-      <h3 class="section__title">Fotos</h3>
-
-      @if ((dog()?.fotos?.length ?? 0) === 0) {
-        <p class="section__empty">Aún no hay fotos.</p>
-      } @else {
-        <ul class="photos-grid">
-          @for (url of dog()?.fotos ?? []; track url; let i = $index) {
-            <li class="photo-tile">
-              <img [src]="url" [alt]="'Foto ' + (i + 1) + ' de ' + dog()?.nombre" loading="lazy" />
-              @if (i === 0) {
-                <span class="photo-tile__badge">★ Principal</span>
-              }
-              <div class="photo-tile__actions">
-                @if (i !== 0) {
-                  <button type="button" class="btn-mini" (click)="makePrimary(url)">Principal</button>
-                }
-                <button type="button" class="btn-mini btn-mini--danger" (click)="removePhoto(url)">Eliminar</button>
-              </div>
-            </li>
+    <!-- ============ Avisos de seguridad ============ -->
+    @if (dog(); as d) {
+      @if (hasSafetyFlags()) {
+        <section class="section section--flags" aria-label="Avisos de seguridad">
+          @if (d.esPPP) {
+            <span class="ppp-pill" title="Perro Potencialmente Peligroso">PPP</span>
           }
-        </ul>
+          @if (d.bozalObligatorio) {
+            <span class="flag flag--warning" title="Bozal obligatorio" aria-label="Bozal obligatorio">
+              <svg class="flag__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  d="M4 11c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v1.5c0 2.76-3.58 5-8 5s-8-2.24-8-5V11Z"
+                  fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"
+                />
+                <path
+                  d="M8 10.5v5.5M12 10.5v6.5M16 10.5v5.5"
+                  fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                />
+                <path d="M3 10.5h18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+              </svg>
+              <span class="flag__label">Bozal</span>
+            </span>
+          }
+          @if (d.cuidadoMachos) {
+            <span class="flag flag--danger" title="Precaución con otros machos" aria-label="Precaución con otros machos">
+              <svg class="flag__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="10" cy="14" r="5.2" fill="none" stroke="currentColor" stroke-width="1.9" />
+                <path
+                  d="M14 10 L20 4 M20 4 h-5 M20 4 v5"
+                  fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"
+                />
+              </svg>
+              <span class="flag__label">Machos</span>
+            </span>
+          }
+          @if (d.cuidadoHembras) {
+            <span class="flag flag--danger" title="Precaución con otras hembras" aria-label="Precaución con otras hembras">
+              <svg class="flag__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="10" r="5.2" fill="none" stroke="currentColor" stroke-width="1.9" />
+                <path d="M12 15.2 V22 M9 19 h6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
+              </svg>
+              <span class="flag__label">Hembras</span>
+            </span>
+          }
+        </section>
       }
 
-      <div class="upload-buttons">
-        <label class="btn-primary btn-primary--sm" [class.is-disabled]="uploading()">
-          @if (uploading()) { Subiendo… } @else { Cámara }
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            hidden
-            [disabled]="uploading()"
-            #cameraInput
-            (change)="onFilesSelected(cameraInput)"
-          />
-        </label>
+      <!-- ============ Datos ============ -->
+      <section class="section">
+        <h3 class="section__title">Datos</h3>
+        <dl class="info-grid">
+          <div><dt>Estado</dt><dd>{{ estadoLabel(d.estado) }}</dd></div>
+          <div><dt>Energía</dt><dd>{{ d.energia }}</dd></div>
+          <div><dt>Prioridad paseo</dt><dd>{{ d.prioridadPaseo }}</dd></div>
+          <div><dt>Sexo</dt><dd>{{ sexoLabel(d.sexo) }}</dd></div>
+          @if (d.color) {
+            <div><dt>Color</dt><dd>{{ d.color }}</dd></div>
+          }
+          @if (d.adoptadoEn) {
+            <div><dt>Adoptado el</dt><dd>{{ d.adoptadoEn | date: 'dd/MM/yyyy' }}</dd></div>
+          }
+        </dl>
+      </section>
 
-        <label class="btn-secondary btn-secondary--sm" [class.is-disabled]="uploading()">
-          Galería
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            hidden
-            [disabled]="uploading()"
-            #galleryInput
-            (change)="onFilesSelected(galleryInput)"
-          />
-        </label>
-      </div>
-    </section>
+      <!-- ============ Notas ============ -->
+      <section class="section">
+        <h3 class="section__title">Notas importantes</h3>
+        @if (d.notas) {
+          <p class="notes-readonly">{{ d.notas }}</p>
+        } @else {
+          <p class="section__empty">Sin notas registradas.</p>
+        }
+      </section>
 
-    <!-- ============ Notas ============ -->
-    <section class="section">
-      <h3 class="section__title">Notas importantes</h3>
-      <textarea
-        class="textarea"
-        rows="3"
-        placeholder="Comportamiento, alergias, historia, recomendaciones…"
-        [value]="currentNotesValue()"
-        (input)="onNotesInput($event)"
-        (blur)="saveNotes()"
-      ></textarea>
-      @if (savingNotes()) {
-        <p class="section__hint">Guardando…</p>
-      }
-    </section>
+      <!-- ============ Fotos (solo lectura) ============ -->
+      <section class="section">
+        <h3 class="section__title">Fotos</h3>
+
+        @if (d.fotos.length === 0) {
+          <p class="section__empty">Aún no hay fotos.</p>
+        } @else {
+          <ul class="photos-grid photos-grid--readonly">
+            @for (url of d.fotos; track url; let i = $index) {
+              <li class="photo-tile">
+                <img [src]="url" [alt]="'Foto ' + (i + 1) + ' de ' + d.nombre" loading="lazy" />
+                @if (i === 0) {
+                  <span class="photo-tile__badge">★ Principal</span>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
 
     <!-- ============ Paseo ============ -->
     @if (isActive()) {
@@ -123,35 +153,12 @@
         }
       </section>
     }
-
-    <!-- ============ Acciones finales ============ -->
-    <section class="section section--danger">
-      <h3 class="section__title">Acciones</h3>
-
-      @if (isActive()) {
-        <button
-          type="button"
-          class="btn-secondary btn-secondary--full"
-          [disabled]="markingAdopted()"
-          (click)="markAsAdopted()"
-        >
-          @if (markingAdopted()) { Marcando… } @else { Marcar como adoptado }
-        </button>
-      }
-
-      @if (!deleteConfirm()) {
-        <button type="button" class="btn-danger" (click)="askDelete()">
-          Eliminar perro
-        </button>
-      } @else {
-        <p class="section__warn">
-          ¿Seguro? Se borrarán también sus paseos y se liberará su jaula.
-        </p>
-        <div class="danger-actions">
-          <button type="button" class="btn-secondary" (click)="cancelDelete()">Cancelar</button>
-          <button type="button" class="btn-danger" (click)="confirmDelete()">Sí, eliminar</button>
-        </div>
-      }
-    </section>
   </div>
 </aside>
+
+@if (editing() && dog()) {
+  <app-edit-dog-modal
+    [dogId]="dogId()"
+    (close)="closeEdit()"
+  />
+}
