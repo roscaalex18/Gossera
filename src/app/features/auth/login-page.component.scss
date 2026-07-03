@@ -1,0 +1,90 @@
+.login-shell {
+  min-height: calc(100dvh - 2rem);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  border: 1px solid #d6e1ef;
+  border-radius: 14px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  box-shadow: 0 10px 32px rgba(15, 46, 77, 0.08);
+}
+
+.login-card h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.4rem;
+  color: #0f2e4d;
+}
+
+.login-card header p {
+  margin: 0;
+  color: #35506f;
+  font-size: 0.9rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: #0f2e4d;
+  font-weight: 600;
+}
+
+.field input {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #cfd9e8;
+  border-radius: 10px;
+  font: inherit;
+  min-height: 44px;
+  background: #ffffff;
+  color: #0f2e4d;
+}
+
+.field input:focus {
+  outline: 2px solid #0f4c81;
+  outline-offset: 1px;
+  border-color: #0f4c81;
+}
+
+.btn-primary {
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: 0;
+  background: #0f4c81;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 44px;
+  font-size: 1rem;
+}
+
+.btn-primary:disabled {
+  background: #7a94b1;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 0;
+  color: #b3261e;
+  background: #fce8e6;
+  border: 1px solid #f3c0bc;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.9rem;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #5b7290;
+  text-align: center;
+}

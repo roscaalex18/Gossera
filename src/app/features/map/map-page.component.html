@@ -1,161 +1,254 @@
-<section class="map-page">
-
-  <header class="map-page__header">
-    <h1>Mapa de la Gossera</h1>
-    <p>Assignació aleatòria de perros · Clica una casella per veure el detall</p>
-  </header>
-
-  <div class="map-layout">
-
-    <!-- ═══════════════════════════════════════════════════════
-         SVG MAP
-    ════════════════════════════════════════════════════════ -->
-    <div class="map-canvas-wrap">
-      <svg class="map-svg" viewBox="0 0 520 760" xmlns="http://www.w3.org/2000/svg">
-
-
-        <!-- ── CORREDOR QUARANTENA (línia separadora) ───────────── -->
-        <line x1="308" y1="68" x2="462" y2="68" stroke="#2a3a26" stroke-width="10"/>
-
-        <!-- ── TOTES LES CASELLES (via cellRects) ────────────────── -->
-        @for (cr of cellRects(); track cr.cell.id) {
-
-          <!-- PATIO (negre) – no clicable ──────────────────────── -->
-          @if (cr.cell.type === 'patio') {
-            <rect
-              [attr.x]="cr.x" [attr.y]="cr.y"
-              [attr.width]="cr.w" [attr.height]="cr.h"
-              fill="#1c1c1c" stroke="#4a4a4a" stroke-width="2" rx="3"
-            />
-            <text
-              [attr.x]="cr.x + cr.w / 2" [attr.y]="cr.y + cr.h / 2 + 4"
-              font-size="8" fill="#555" text-anchor="middle"
-            >{{ cr.cell.label }}</text>
-          }
-
-          <!-- TOTES LES CASELLES CLICABLES ──────────────────────── -->
-          @if (cr.cell.type !== 'patio') {
-            <g
-              class="cell-group"
-              (click)="selectCell(cr.cell)"
-              role="button"
-              tabindex="0"
-              [attr.aria-label]="cr.cell.label"
-            >
-              <rect
-                [attr.x]="cr.x" [attr.y]="cr.y"
-                [attr.width]="cr.w" [attr.height]="cr.h"
-                [attr.fill]="colorOf(cr.cell.type)"
-                [attr.stroke]="selectedCell()?.id === cr.cell.id ? '#fff' : 'rgba(0,0,0,.5)'"
-                [attr.stroke-width]="selectedCell()?.id === cr.cell.id ? 3 : 1.5"
-                rx="3"
-              />
-
-              @if (cr.cell.accessViaPatio) {
-                <text [attr.x]="cr.x + 3" [attr.y]="cr.y + 9" font-size="7" fill="rgba(255,255,160,.9)">⚠</text>
-              }
-
-              <!-- nom de la casella -->
-              <text
-                [attr.x]="cr.x + cr.w / 2"
-                [attr.y]="cr.y + 12"
-                font-size="7" font-weight="600"
-                fill="rgba(255,255,255,.9)" text-anchor="middle"
-              >{{ cr.cell.label }}</text>
-
-              <!-- nom dels perros (màx 2 línies) -->
-              @for (dId of cr.cell.dogIds; track dId; let di = $index) {
-                @if (di < 2) {
-                  <text
-                    [attr.x]="cr.x + cr.w / 2"
-                    [attr.y]="cr.y + 22 + di * 9"
-                    font-size="6" fill="rgba(255,255,255,.85)" text-anchor="middle"
-                  >{{ shortName(dogOf(dId)?.nombre ?? '') }}</text>
-                }
-              }
-              @if (cr.cell.dogIds.length > 2) {
-                <text
-                  [attr.x]="cr.x + cr.w / 2" [attr.y]="cr.y + cr.h - 3"
-                  font-size="6" fill="rgba(255,255,160,.9)" text-anchor="middle"
-                >+{{ cr.cell.dogIds.length - 2 }}</text>
-              }
-            </g>
-          }
-        }
-
-        <!-- etiquetes de zona -->
-        <text x="312" y="16" font-size="8" fill="#93c5fd" font-weight="600">QUARANTENA</text>
-        <text x="12" y="136" font-size="7" fill="#aaa">← PATIOS</text>
-        <text x="365" y="136" font-size="7" fill="#fca5a5">CHENILS →</text>
-
-      </svg>
+﻿<section class="map-page">
+  <header class="map-header">
+    <div class="map-header__title">
+      <h1>Mapa de la perrera</h1>
+      <p class="subtitle">Toca una zona para ver o asignar perros.</p>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
-         SIDE PANEL – cell detail
-    ════════════════════════════════════════════════════════ -->
-    @if (selectedCell(); as cell) {
-      <aside class="map-panel">
-        <button class="map-panel__close" (click)="closePanel()" aria-label="Tancar panell">✕</button>
+    <div class="map-header__stats" aria-label="Resumen de asignaciones">
+      <article>
+        <span>Perros asignados</span>
+        <strong>{{ assignedDogs() }} / {{ totalDogs() }}</strong>
+      </article>
+      <article>
+        <span>Zonas</span>
+        <strong>{{ regions().length }}</strong>
+      </article>
+    </div>
+  </header>
 
-        <div class="map-panel__type-badge" [style.background]="colorOf(cell.type)">
-          {{ cell.type === 'quarantena'      ? 'Quarantena'
-           : cell.type === 'chenil-varios'   ? 'Chenil de varios'
-           : cell.type === 'chenil-solitari' ? 'Chenil solitari'
-           : cell.type === 'chenil-normal'   ? 'Chenil normal'
-           : cell.type === 'jaula-exterior'  ? 'Jaula exterior'
-           : cell.type }}
-        </div>
+  <div class="map-canvas">
+    <div class="map-canvas__scroll">
+      <svg
+        class="shelter-svg"
+        role="img"
+        aria-label="Plano interactivo de la perrera"
+        [attr.viewBox]="'0 0 ' + viewBoxCols + ' ' + viewBoxRows"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <!-- Fondo del recinto -->
+        <rect
+          class="svg-background"
+          x="0"
+          y="0"
+          [attr.width]="viewBoxCols"
+          [attr.height]="viewBoxRows"
+        />
 
-        <h2>{{ cell.label }}</h2>
+        @for (region of regions(); track region.id) {
+          <g
+            class="region"
+            [attr.data-type]="region.type"
+            [class.region--selected]="selectedRegionId() === region.id"
+            [class.region--occupied]="dogCount(region.id) > 0"
+            (click)="openRegion(region.id)"
+          >
+            <title>
+              {{ region.name }} — {{ paletteLabel(region.type) }}
+              @if (dogCount(region.id) > 0) {
+                · {{ dogCount(region.id) }} perro(s)
+              }
+            </title>
 
-        @if (cell.accessViaPatio) {
-          <p class="map-panel__warn">⚠ Accés via pati</p>
-        }
+            <rect
+              class="region__rect"
+              [attr.x]="regionX(region)"
+              [attr.y]="regionY(region)"
+              [attr.width]="regionWidth(region)"
+              [attr.height]="regionHeight(region)"
+              rx="0.5"
+              ry="0.5"
+            />
 
-        <p class="map-panel__meta">
-          Capacitat: <strong>{{ cell.id === 'Q1' ? 8 : cell.capacity }}</strong>
-          · Ocupació: <strong>{{ cell.dogIds.length }}</strong>
-        </p>
+            <text
+              class="region__label"
+              [attr.x]="regionCenterX(region)"
+              [attr.y]="regionCenterY(region)"
+              [attr.font-size]="regionFontSize(region)"
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
+              {{ region.name }}
+            </text>
 
-        <ul class="map-panel__dogs">
-          @for (dId of cell.dogIds; track dId) {
-            @if (dogOf(dId); as dog) {
-              <li class="dog-item">
-                <img [src]="dog.fotoUrl" [alt]="dog.nombre" loading="lazy" />
-                <div>
-                  <strong>{{ dog.nombre }}</strong>
-                  <span>{{ dog.id }}</span>
-                  <span>{{ dog.raza }}</span>
-                  @if (dog.color) { <span>{{ dog.color }}</span> }
-                  @if (dog.llugarRecollida) { <span>📍 {{ dog.llugarRecollida }}</span> }
-                  <span
-                    class="priority-dot"
-                    [class.priority-dot--alta]="dog.prioridadPaseo === 'alta'"
-                    [class.priority-dot--media]="dog.prioridadPaseo === 'media'"
-                    [class.priority-dot--baja]="dog.prioridadPaseo === 'baja'"
-                  >Prioritat {{ dog.prioridadPaseo }}</span>
-                </div>
-              </li>
+            @if (dogCount(region.id) > 0) {
+              <circle
+                class="region__badge"
+                [attr.cx]="badgeCx(region)"
+                [attr.cy]="badgeCy(region)"
+                [attr.r]="badgeRadius(region)"
+              />
+              <text
+                class="region__badge-text"
+                [attr.x]="badgeCx(region)"
+                [attr.y]="badgeCy(region)"
+                text-anchor="middle"
+                dominant-baseline="central"
+                [attr.font-size]="badgeFontSize(region)"
+              >
+                {{ dogCount(region.id) }}
+              </text>
             }
-          }
-          @if (cell.dogIds.length === 0) {
-            <li class="dog-item dog-item--empty">Casella buida</li>
-          }
-        </ul>
-      </aside>
-    }
-
+          </g>
+        }
+      </svg>
+    </div>
+    <p class="map-hint">Desplaza horizontalmente si no ves el mapa entero.</p>
   </div>
 
-  <!-- ─── LEGEND ──────────────────────────────────────────── -->
-  <footer class="map-legend">
-    @for (item of legend; track item.type) {
-      <div class="legend-item">
-        <span class="legend-swatch" [style.background]="colorOf(item.type)"></span>
-        {{ item.label }}
-      </div>
-    }
-  </footer>
+  <!-- === Bottom sheet: detalle de la zona seleccionada === -->
+  @if (selectedRegion(); as region) {
+    <div
+      class="sheet-backdrop"
+      (click)="closeSheet()"
+      aria-hidden="true"
+    ></div>
 
+    <aside
+      class="sheet"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="'Detalle de ' + region.name"
+    >
+      <div class="sheet__grabber" aria-hidden="true"></div>
+
+      @if (sheetMode() === 'list') {
+        <header class="sheet__header">
+          <div class="sheet__title">
+            <span class="sheet__region-name">{{ region.name }}</span>
+            <span class="sheet__region-type" [attr.data-type]="region.type">
+              {{ paletteLabel(region.type) }}
+            </span>
+          </div>
+          <button
+            type="button"
+            class="sheet__close"
+            (click)="closeSheet()"
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="sheet__body">
+          @if (dogsInSelected().length === 0) {
+            <div class="sheet__empty">
+              <p>No hay perros asignados a <strong>{{ region.name }}</strong>.</p>
+              <p class="sheet__empty-hint">Añade el primero con el botón de abajo.</p>
+            </div>
+          } @else {
+            <p class="sheet__count">
+              {{ dogsInSelected().length }} perro(s) en {{ region.name }}
+            </p>
+
+            <div class="dogs-list">
+              @for (dog of dogsInSelected(); track dog.id) {
+                <app-dog-card [dog]="dog" [compact]="true">
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    (click)="removeDog(dog.id)"
+                  >
+                    Quitar del box
+                  </button>
+                </app-dog-card>
+              }
+            </div>
+          }
+        </div>
+
+        <footer class="sheet__footer">
+          <button
+            type="button"
+            class="btn btn-primary btn-block"
+            (click)="goToAssign()"
+          >
+            + Asignar perro a {{ region.name }}
+          </button>
+        </footer>
+      } @else {
+        <header class="sheet__header">
+          <button
+            type="button"
+            class="sheet__back"
+            (click)="goToList()"
+            aria-label="Volver"
+          >
+            ←
+          </button>
+          <div class="sheet__title">
+            <span class="sheet__region-name">Añadir a {{ region.name }}</span>
+            <span class="sheet__region-type">Elige un perro</span>
+          </div>
+          <button
+            type="button"
+            class="sheet__close"
+            (click)="closeSheet()"
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="sheet__search">
+          <input
+            type="search"
+            placeholder="Buscar por nombre, raza o id…"
+            [value]="dogSearch()"
+            (input)="onSearchInput($event)"
+            aria-label="Buscar perro"
+          />
+        </div>
+
+        <div class="sheet__body">
+          @if (filteredDogsForAssign().length === 0) {
+            <div class="sheet__empty">
+              <p>Ningún perro coincide con la búsqueda.</p>
+            </div>
+          } @else {
+            <ul class="assign-list">
+              @for (row of filteredDogsForAssign(); track row.dog.id) {
+                <li
+                  class="assign-item"
+                  [class.assign-item--here]="row.currentRegionId === region.id"
+                >
+                  @if (row.dog.fotos[0]; as cover) {
+                    <img
+                      class="assign-item__photo"
+                      [src]="cover"
+                      [alt]="'Foto de ' + row.dog.nombre"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div class="assign-item__photo assign-item__photo--empty" aria-hidden="true"></div>
+                  }
+                  <div class="assign-item__info">
+                    <strong>{{ row.dog.nombre }}</strong>
+                    <span>{{ row.dog.raza }} · {{ row.dog.id }}</span>
+                    @if (row.currentRegionId === region.id) {
+                      <span class="assign-item__badge assign-item__badge--here">
+                        Ya está en {{ region.name }}
+                      </span>
+                    } @else if (row.currentRegionName) {
+                      <span class="assign-item__badge assign-item__badge--elsewhere">
+                        Ahora en {{ row.currentRegionName }} · se moverá aquí
+                      </span>
+                    }
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    [disabled]="row.currentRegionId === region.id"
+                    (click)="assignDog(row.dog.id)"
+                  >
+                    {{ row.currentRegionId === region.id ? 'Aquí' : 'Añadir' }}
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+    </aside>
+  }
 </section>

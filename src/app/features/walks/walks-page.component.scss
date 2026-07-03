@@ -1,0 +1,145 @@
+:host {
+  display: block;
+}
+
+.walks-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.walks-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  color: #0f2e4d;
+}
+
+p {
+  margin: 0.35rem 0 0;
+  color: #35506f;
+}
+
+.walks-page__stats {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.walks-page__stats article {
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 12px;
+  padding: 0.55rem 0.9rem;
+  min-width: 100px;
+}
+
+.walks-page__stats span {
+  display: block;
+  font-size: 0.75rem;
+  color: #345;
+}
+
+.walks-page__stats strong {
+  font-size: 1.25rem;
+  color: #0f2e4d;
+}
+
+.walks-page__toolbar {
+  display: flex;
+}
+
+.walks-page__search {
+  flex: 1;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid #cfd9e8;
+  border-radius: 10px;
+  font: inherit;
+  min-height: 44px;
+  background: #ffffff;
+  color: #0f2e4d;
+}
+
+.walks-page__search:focus {
+  outline: 2px solid #0f4c81;
+  outline-offset: 1px;
+  border-color: #0f4c81;
+}
+
+.walks-page__empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: #5b7290;
+  background: #ffffff;
+  border: 1px dashed #d6e1ef;
+  border-radius: 12px;
+}
+
+.walks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.walk-item {
+  display: flex;
+  gap: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+}
+
+.walk-item__photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex: 0 0 auto;
+  background: #e2e8f0;
+}
+
+.walk-item__photo--empty {
+  background: #eaf2fd;
+}
+
+.walk-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.walk-item__title {
+  display: flex;
+  gap: 0.4rem;
+  align-items: baseline;
+  color: #0f2e4d;
+}
+
+.walk-item__id {
+  color: #5b7290;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.walk-item__time {
+  color: #35506f;
+  font-size: 0.82rem;
+}
+
+.walk-item__note {
+  color: #35506f;
+  font-size: 0.82rem;
+  font-style: italic;
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,156 @@
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 46, 77, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 60;
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 61;
+  background: #ffffff;
+  border-radius: 18px 18px 0 0;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0.9rem 0.9rem calc(0.9rem + env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 32px rgba(15, 46, 77, 0.18);
+}
+
+.sheet__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #eef2f8;
+}
+
+.sheet__header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #0f2e4d;
+}
+
+.sheet__header p {
+  margin: 0.15rem 0 0;
+  color: #5b7290;
+  font-size: 0.85rem;
+}
+
+.icon-btn {
+  border: 0;
+  background: transparent;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #0f2e4d;
+  cursor: pointer;
+  padding: 0 0.4rem;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.sheet__form {
+  overflow-y: auto;
+  padding-top: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.grid {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: #0f2e4d;
+  font-weight: 600;
+}
+
+.field em {
+  color: #b3261e;
+  font-style: normal;
+  margin-left: 2px;
+}
+
+.field--wide {
+  grid-column: 1 / -1;
+}
+
+.field input,
+.field select,
+.field textarea {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #cfd9e8;
+  border-radius: 10px;
+  font: inherit;
+  min-height: 42px;
+  background: #ffffff;
+  color: #0f2e4d;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: 2px solid #0f4c81;
+  outline-offset: 1px;
+  border-color: #0f4c81;
+}
+
+.sheet__error {
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  background: #fce8e6;
+  color: #b3261e;
+  border: 1px solid #f3c0bc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.sheet__actions {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid #eef2f8;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  padding: 0.75rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 44px;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: #0f4c81;
+  color: #ffffff;
+}
+
+.btn-primary:disabled {
+  background: #7a94b1;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: #0f2e4d;
+  border-color: #d6e1ef;
+}

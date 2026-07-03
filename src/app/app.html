@@ -1,19 +1,26 @@
-<div class="app-shell">
-  <header class="topbar">
-    <div class="brand">
-      <span class="brand__emoji" aria-hidden="true">P</span>
-      <div>
-        <h1>Gossera</h1>
-        <p>Gestion de paseos en perrera</p>
+<div class="app-shell" [class.app-shell--anon]="!auth.isAuthenticated()">
+  @if (auth.isAuthenticated()) {
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand__emoji" aria-hidden="true">P</span>
+        <div>
+          <h1>Gossera</h1>
+          <p>Gestion de paseos en perrera</p>
+        </div>
       </div>
-    </div>
 
-    <nav aria-label="Navegacion principal">
-      <a routerLink="/perros" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Perros</a>
-      <a routerLink="/mapa" routerLinkActive="is-active">Mapa</a>
-      <a routerLink="/paseos" routerLinkActive="is-active">Paseos</a>
-    </nav>
-  </header>
+      <nav aria-label="Navegacion principal">
+        <a routerLink="/perros" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Perros</a>
+        <a routerLink="/mapa" routerLinkActive="is-active">Mapa</a>
+        <a routerLink="/paseos" routerLinkActive="is-active">Paseos</a>
+      </nav>
+
+      <div class="account">
+        <span class="account__email" [title]="auth.user()?.email ?? ''">{{ auth.displayName() }}</span>
+        <button type="button" class="account__logout" (click)="logout()">Salir</button>
+      </div>
+    </header>
+  }
 
   <main class="content">
     <router-outlet />

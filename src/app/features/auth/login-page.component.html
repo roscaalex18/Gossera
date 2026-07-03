@@ -1,0 +1,47 @@
+<section class="login-shell">
+  <form class="login-card" (ngSubmit)="submit()" novalidate>
+    <header>
+      <h1>Iniciar sesión</h1>
+      <p>Acceso solo para voluntarios de la protectora.</p>
+    </header>
+
+    <label class="field">
+      <span>Usuario</span>
+      <input
+        type="text"
+        name="username"
+        autocomplete="username"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        required
+        [ngModel]="username()"
+        (ngModelChange)="username.set($event)"
+      />
+    </label>
+
+    <label class="field">
+      <span>Contraseña</span>
+      <input
+        type="password"
+        name="password"
+        autocomplete="current-password"
+        required
+        [ngModel]="password()"
+        (ngModelChange)="password.set($event)"
+      />
+    </label>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    <button type="submit" class="btn-primary" [disabled]="!canSubmit()">
+      @if (loading()) { Entrando… } @else { Entrar }
+    </button>
+
+    <p class="hint">
+      ¿No tienes cuenta? Pide acceso a un administrador del refugio.
+    </p>
+  </form>
+</section>

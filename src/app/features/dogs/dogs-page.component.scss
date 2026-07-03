@@ -48,6 +48,12 @@ p {
   font-size: 1.3rem;
 }
 
+.dogs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 1rem;
+}
+
 .dogs-page__filters {
   display: inline-flex;
   gap: 0.5rem;
@@ -58,8 +64,10 @@ p {
   border-radius: 999px;
   background: #f5f9ff;
   color: #143a62;
-  padding: 0.55rem 0.95rem;
+  padding: 0.7rem 1.1rem;
+  min-height: 44px;
   cursor: pointer;
+  font-size: 0.95rem;
 }
 
 .filter-btn--active {
@@ -67,75 +75,91 @@ p {
   color: #ffffff;
 }
 
-.dogs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.dog-card {
+.dogs-page__empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: #5b7290;
   background: #ffffff;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid #d7e1ef;
-  box-shadow: 0 8px 22px rgba(16, 44, 72, 0.08);
-}
-
-.dog-card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-.dog-card__content {
-  padding: 0.85rem;
-}
-
-.dog-card__title-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  align-items: start;
-}
-
-.dog-card__title-row h2 {
+  border: 1px dashed #d6e1ef;
+  border-radius: 12px;
   margin: 0;
-  font-size: 1.2rem;
 }
 
-.priority-pill {
-  display: inline-block;
+/* Reset button that wraps each dog card so it feels tappable. */
+.dog-card-btn {
+  all: unset;
+  cursor: pointer;
+  display: block;
+  border-radius: 14px;
+  transition: transform 0.12s ease;
+}
+
+.dog-card-btn:focus-visible {
+  outline: 2px solid #0f4c81;
+  outline-offset: 2px;
+}
+
+.dog-card-btn:active {
+  transform: scale(0.98);
+}
+
+/* Floating action button — "new dog". */
+.fab {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #0f4c81;
+  color: #ffffff;
+  border: 0;
   border-radius: 999px;
-  font-size: 0.72rem;
-  padding: 0.2rem 0.5rem;
-  white-space: nowrap;
-}
-
-.priority-alta {
-  background: #ffe3e3;
-  color: #991b1b;
-}
-
-.priority-media {
-  background: #fff4d4;
-  color: #8a5500;
-}
-
-.priority-baja {
-  background: #e6f5ec;
-  color: #0d6b3a;
-}
-
-.dog-card__meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  margin-top: 0.5rem;
-  color: #2f4963;
-  font-size: 0.9rem;
-}
-
-.pending {
+  padding: 0.85rem 1.15rem;
   font-weight: 700;
-  color: #b11c1c;
+  font-size: 1rem;
+  cursor: pointer;
+  min-height: 52px;
+  box-shadow: 0 12px 30px rgba(15, 46, 77, 0.28);
+  font-family: inherit;
+}
+
+.fab__plus {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.fab:hover {
+  background: #143a62;
+}
+
+.fab:focus-visible {
+  outline: 3px solid #ffb84d;
+  outline-offset: 2px;
+}
+
+@media (min-width: 721px) {
+  .fab {
+    bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .dogs-page__filters {
+    width: 100%;
+
+    .filter-btn {
+      flex: 1 1 0;
+    }
+  }
+
+  .dogs-page__stats {
+    width: 100%;
+
+    article {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  }
 }

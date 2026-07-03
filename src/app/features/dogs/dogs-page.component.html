@@ -2,12 +2,12 @@
   <header class="dogs-page__header">
     <div>
       <h1>Perros de la perrera</h1>
-      <p>Gestiona los paseos diarios con una base de datos local.</p>
+      <p>Gestiona los paseos diarios de los perros activos.</p>
     </div>
 
     <div class="dogs-page__stats" aria-label="Resumen de perros">
       <article>
-        <span>Total</span>
+        <span>Activos</span>
         <strong>{{ totalDogs() }}</strong>
       </article>
       <article>
@@ -17,7 +17,7 @@
     </div>
   </header>
 
-  <div class="dogs-page__filters" role="group" aria-label="Filtrar perros">
+  <div class="dogs-page__filters" role="group" aria-label="Filtrar por paseo">
     <button
       type="button"
       class="filter-btn"
@@ -37,31 +37,44 @@
     </button>
   </div>
 
-  <div class="dogs-grid">
-    @for (dog of dogs(); track trackByDogId($index, dog)) {
-      <article class="dog-card">
-        <img [src]="dog.fotoUrl" [alt]="'Foto de ' + dog.nombre" loading="lazy" />
-
-        <div class="dog-card__content">
-          <div class="dog-card__title-row">
-            <h2>{{ dog.nombre }}</h2>
-            <span class="priority-pill" [ngClass]="priorityClass(dog.prioridadPaseo)">
-              Prioridad {{ dog.prioridadPaseo }}
-            </span>
-          </div>
-
-          <p>{{ dog.raza }} · {{ dog.edad }} años · Energia {{ dog.energia }}</p>
-
-          <div class="dog-card__meta">
-            <span>
-              Ultimo paseo: {{ dog.ultimoPaseo | date: 'dd/MM HH:mm' }}
-            </span>
-            <span [class.pending]="dog.necesitaPaseoHoy">
-              {{ dog.necesitaPaseoHoy ? 'Necesita paseo hoy' : 'Paseo al dia' }}
-            </span>
-          </div>
-        </div>
-      </article>
-    }
-  </div>
+  @if (dogs().length === 0) {
+    <p class="dogs-page__empty">No hay perros que coincidan con el filtro.</p>
+  } @else {
+    <div class="dogs-grid">
+      @for (dog of dogs(); track trackByDogId($index, dog)) {
+        <button
+          type="button"
+          class="dog-card-btn"
+          (click)="openDetail(dog.id)"
+          [attr.aria-label]="'Abrir detalle de ' + dog.nombre"
+        >
+          <app-dog-card [dog]="dog" />
+        </button>
+      }
+    </div>
+  }
 </section>
+
+<button
+  type="button"
+  class="fab"
+  (click)="openNewDog()"
+  aria-label="Añadir nuevo perro"
+>
+  <span class="fab__plus" aria-hidden="true">+</span>
+  <span class="fab__label">Nuevo perro</span>
+</button>
+
+@if (editingDogId(); as id) {
+  <app-dog-detail-sheet
+    [dogId]="id"
+    (close)="closeDetail()"
+  />
+}
+
+@if (creatingNew()) {
+  <app-new-dog-sheet
+    (close)="closeNewDog()"
+    (created)="onDogCreated($event)"
+  />
+}

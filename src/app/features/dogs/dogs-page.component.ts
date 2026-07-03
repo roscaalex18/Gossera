@@ -1,13 +1,14 @@
-import { DatePipe, NgClass } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { DogRepositoryService } from '../../core/services/dog-repository.service';
-import { DogWalkPriority } from '../../core/models/dog.model';
+import { DogCardComponent } from '../../shared/dog-card/dog-card.component';
+import { DogDetailSheetComponent } from './dog-detail-sheet.component';
+import { NewDogSheetComponent } from './new-dog-sheet.component';
 
 type FilterMode = 'todos' | 'soloPendientes';
 
 @Component({
   selector: 'app-dogs-page',
-  imports: [DatePipe, NgClass],
+  imports: [DogCardComponent, DogDetailSheetComponent, NewDogSheetComponent],
   templateUrl: './dogs-page.component.html',
   styleUrl: './dogs-page.component.scss'
 })
@@ -15,30 +16,56 @@ export class DogsPageComponent {
   private readonly dogRepository = inject(DogRepositoryService);
 
   readonly filterMode = signal<FilterMode>('todos');
+  readonly editingDogId = signal<string | null>(null);
+  readonly creatingNew = signal(false);
+
+  /** Only active dogs are shown in the main list for now. */
   readonly dogs = computed(() => {
-    const allDogs = this.dogRepository.dogs();
+    let list = this.dogRepository.dogs().filter((d) => d.estado === 'activo');
 
     if (this.filterMode() === 'soloPendientes') {
-      return allDogs.filter((dog) => dog.necesitaPaseoHoy);
+      list = list.filter((d) => d.necesitaPaseoHoy);
     }
 
-    return allDogs;
+    return list;
   });
 
-  readonly totalDogs = computed(() => this.dogRepository.dogs().length);
+  readonly totalDogs = computed(
+    () => this.dogRepository.dogs().filter((d) => d.estado === 'activo').length
+  );
   readonly pendingDogs = computed(
-    () => this.dogRepository.dogs().filter((dog) => dog.necesitaPaseoHoy).length
+    () =>
+      this.dogRepository
+        .dogs()
+        .filter((d) => d.estado === 'activo' && d.necesitaPaseoHoy).length
   );
 
   setFilter(mode: FilterMode): void {
     this.filterMode.set(mode);
   }
 
-  trackByDogId(_index: number, dog: { id: string }): string {
-    return dog.id;
+  openDetail(dogId: string): void {
+    this.editingDogId.set(dogId);
   }
 
-  priorityClass(priority: DogWalkPriority): string {
-    return `priority-${priority}`;
+  closeDetail(): void {
+    this.editingDogId.set(null);
+  }
+
+  openNewDog(): void {
+    this.creatingNew.set(true);
+  }
+
+  closeNewDog(): void {
+    this.creatingNew.set(false);
+  }
+
+  /** After creating a new dog, jump straight into its detail sheet. */
+  onDogCreated(id: string): void {
+    this.editingDogId.set(id);
+  }
+
+  trackByDogId(_index: number, dog: { id: string }): string {
+    return dog.id;
   }
 }

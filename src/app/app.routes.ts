@@ -1,12 +1,15 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
+import { LoginPageComponent } from './features/auth/login-page.component';
 import { DogsPageComponent } from './features/dogs/dogs-page.component';
 import { MapPageComponent } from './features/map/map-page.component';
 import { WalksPageComponent } from './features/walks/walks-page.component';
 
 export const routes: Routes = [
+	{ path: 'login', component: LoginPageComponent },
 	{ path: '', pathMatch: 'full', redirectTo: 'perros' },
-	{ path: 'perros', component: DogsPageComponent },
-	{ path: 'mapa', component: MapPageComponent },
-	{ path: 'paseos', component: WalksPageComponent },
+	{ path: 'perros', component: DogsPageComponent, canActivate: [authGuard] },
+	{ path: 'mapa', component: MapPageComponent, canActivate: [authGuard] },
+	{ path: 'paseos', component: WalksPageComponent, canActivate: [authGuard] },
 	{ path: '**', redirectTo: 'perros' }
 ];

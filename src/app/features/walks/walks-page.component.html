@@ -1,0 +1,62 @@
+<section class="walks-page">
+  <header class="walks-page__header">
+    <div>
+      <h1>Histórico de paseos</h1>
+      <p>Últimos {{ recentWalks().length }} paseos registrados por los voluntarios.</p>
+    </div>
+
+    <div class="walks-page__stats">
+      <article>
+        <span>Hoy</span>
+        <strong>{{ walksToday() }}</strong>
+      </article>
+      <article>
+        <span>Última semana</span>
+        <strong>{{ walksLastWeek() }}</strong>
+      </article>
+    </div>
+  </header>
+
+  <div class="walks-page__toolbar">
+    <input
+      type="search"
+      class="walks-page__search"
+      placeholder="Filtrar por perro (nombre, id o raza)"
+      [value]="query()"
+      (input)="onSearch($event)"
+    />
+  </div>
+
+  @if (filteredWalks().length === 0) {
+    <p class="walks-page__empty">No hay paseos que coincidan con el filtro.</p>
+  } @else {
+    <ul class="walks-list">
+      @for (item of filteredWalks(); track item.walk.id) {
+        <li class="walk-item">
+          @if (item.dog?.fotos?.[0]; as cover) {
+            <img class="walk-item__photo" [src]="cover" [alt]="'Foto de ' + item.dog?.nombre" loading="lazy" />
+          } @else {
+            <div class="walk-item__photo walk-item__photo--empty" aria-hidden="true"></div>
+          }
+          <div class="walk-item__info">
+            <div class="walk-item__title">
+              <strong>{{ item.dog?.nombre ?? '(perro eliminado)' }}</strong>
+              @if (item.dog) {
+                <span class="walk-item__id">· {{ item.dog.id }}</span>
+              }
+            </div>
+            <span class="walk-item__time">
+              {{ item.walk.fecha | date: 'EEE d MMM · HH:mm' }}
+              @if (item.walk.paseadoPor) {
+                · {{ formatUser(item.walk.paseadoPor) }}
+              }
+            </span>
+            @if (item.walk.notas) {
+              <span class="walk-item__note">"{{ item.walk.notas }}"</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>

@@ -1,0 +1,157 @@
+<div class="sheet-backdrop" (click)="onBackdropClick()"></div>
+
+<aside class="sheet" role="dialog" aria-modal="true" [attr.aria-label]="'Detalle de ' + (dog()?.nombre ?? '')">
+  <header class="sheet__header">
+    <div class="sheet__title">
+      <h2>{{ dog()?.nombre }}</h2>
+      <p>{{ dog()?.id }} · {{ dog()?.raza }} · {{ dog()?.edad }} a</p>
+    </div>
+    <button type="button" class="icon-btn" (click)="onCloseClick()" aria-label="Cerrar">×</button>
+  </header>
+
+  <div class="sheet__body">
+    @if (errorMessage()) {
+      <p class="sheet__error" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <!-- ============ Fotos ============ -->
+    <section class="section">
+      <h3 class="section__title">Fotos</h3>
+
+      @if ((dog()?.fotos?.length ?? 0) === 0) {
+        <p class="section__empty">Aún no hay fotos.</p>
+      } @else {
+        <ul class="photos-grid">
+          @for (url of dog()?.fotos ?? []; track url; let i = $index) {
+            <li class="photo-tile">
+              <img [src]="url" [alt]="'Foto ' + (i + 1) + ' de ' + dog()?.nombre" loading="lazy" />
+              @if (i === 0) {
+                <span class="photo-tile__badge">★ Principal</span>
+              }
+              <div class="photo-tile__actions">
+                @if (i !== 0) {
+                  <button type="button" class="btn-mini" (click)="makePrimary(url)">Principal</button>
+                }
+                <button type="button" class="btn-mini btn-mini--danger" (click)="removePhoto(url)">Eliminar</button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+
+      <div class="upload-buttons">
+        <label class="btn-primary btn-primary--sm" [class.is-disabled]="uploading()">
+          @if (uploading()) { Subiendo… } @else { Cámara }
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            hidden
+            [disabled]="uploading()"
+            #cameraInput
+            (change)="onFilesSelected(cameraInput)"
+          />
+        </label>
+
+        <label class="btn-secondary btn-secondary--sm" [class.is-disabled]="uploading()">
+          Galería
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            [disabled]="uploading()"
+            #galleryInput
+            (change)="onFilesSelected(galleryInput)"
+          />
+        </label>
+      </div>
+    </section>
+
+    <!-- ============ Notas ============ -->
+    <section class="section">
+      <h3 class="section__title">Notas importantes</h3>
+      <textarea
+        class="textarea"
+        rows="3"
+        placeholder="Comportamiento, alergias, historia, recomendaciones…"
+        [value]="currentNotesValue()"
+        (input)="onNotesInput($event)"
+        (blur)="saveNotes()"
+      ></textarea>
+      @if (savingNotes()) {
+        <p class="section__hint">Guardando…</p>
+      }
+    </section>
+
+    <!-- ============ Paseo ============ -->
+    @if (isActive()) {
+      <section class="section">
+        <h3 class="section__title">Paseo</h3>
+        <p class="section__hint">
+          Último paseo: {{ dog()?.ultimoPaseo | date: 'dd/MM HH:mm' }}
+        </p>
+        <input
+          type="text"
+          class="input"
+          placeholder="Nota del paseo (opcional)"
+          [ngModel]="walkNote()"
+          (ngModelChange)="walkNote.set($event)"
+        />
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="registeringWalk()"
+          (click)="registerWalk()"
+        >
+          @if (registeringWalk()) { Registrando… } @else { Registrar paseo }
+        </button>
+
+        @if (walks().length > 0) {
+          <div class="mini-history">
+            <h4>Últimos paseos</h4>
+            <ul>
+              @for (w of walks(); track w.id) {
+                <li>
+                  <strong>{{ w.fecha | date: 'dd/MM HH:mm' }}</strong>
+                  @if (w.paseadoPor) { · {{ formatUser(w.paseadoPor) }} }
+                  @if (w.notas) { — {{ w.notas }} }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- ============ Acciones finales ============ -->
+    <section class="section section--danger">
+      <h3 class="section__title">Acciones</h3>
+
+      @if (isActive()) {
+        <button
+          type="button"
+          class="btn-secondary btn-secondary--full"
+          [disabled]="markingAdopted()"
+          (click)="markAsAdopted()"
+        >
+          @if (markingAdopted()) { Marcando… } @else { Marcar como adoptado }
+        </button>
+      }
+
+      @if (!deleteConfirm()) {
+        <button type="button" class="btn-danger" (click)="askDelete()">
+          Eliminar perro
+        </button>
+      } @else {
+        <p class="section__warn">
+          ¿Seguro? Se borrarán también sus paseos y se liberará su jaula.
+        </p>
+        <div class="danger-actions">
+          <button type="button" class="btn-secondary" (click)="cancelDelete()">Cancelar</button>
+          <button type="button" class="btn-danger" (click)="confirmDelete()">Sí, eliminar</button>
+        </div>
+      }
+    </section>
+  </div>
+</aside>

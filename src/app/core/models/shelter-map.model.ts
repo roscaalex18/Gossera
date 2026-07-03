@@ -1,19 +1,25 @@
 export type CellType =
-  | 'patio'          // black  – open yard
+  | 'patio'          // dark   – open yard
   | 'chenil-varios'  // red    – multi-dog kennel (some accessible only through patio)
   | 'chenil-solitari' // yellow – single-dog kennel
   | 'chenil-normal'  // beige  – standard kennel
   | 'jaula-exterior' // pink   – outdoor cage on ground
-  | 'quarantena';    // blue   – quarantine block (8 compartments)
+  | 'quarantena';    // blue   – quarantine block
 
-export interface ShelterCell {
+/**
+ * A rectangular zone on the shelter map.
+ * Coordinates are 1-based inclusive bounds relative to the underlying
+ * grid (used as the SVG viewBox).
+ */
+export interface ShelterRegion {
   id: string;
+  name: string;
   type: CellType;
-  label: string;
-  /** For quarantena cells, how many compartments (default 1 for others) */
-  capacity: number;
-  /** True if access requires going through a patio first */
-  accessViaPatio?: boolean;
-  /** Dog IDs currently assigned to this cell */
-  dogIds: string[];
+  rowStart: number;
+  rowEnd: number;
+  colStart: number;
+  colEnd: number;
 }
+
+/** Map from region id -> ordered list of dog ids currently assigned. */
+export type ShelterAssignments = Record<string, string[]>;

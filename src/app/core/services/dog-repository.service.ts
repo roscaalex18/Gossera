@@ -1,376 +1,394 @@
-import { Injectable, signal } from '@angular/core';
-import { Dog } from '../models/dog.model';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { RealtimeChannel } from '@supabase/supabase-js';
+import { Dog, DogEstado } from '../models/dog.model';
+import { SUPABASE_CLIENT } from '../supabase/supabase.client';
+import { DogRow, dogToRow, rowToDog } from '../supabase/supabase.mappers';
 
-const STORAGE_KEY = 'gossera.dogs.v2';
+const CACHE_KEY = 'gossera.dogs.cache.v1';
+const PHOTOS_BUCKET = 'dog-photos';
 
-const SEED_DOGS: Dog[] = [
-  {
-    id: 'R-001',
-    nombre: 'Nina',
-    edad: 0,
-    raza: 'Pitbull',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_198a518e78e8479cb7fb8144c1548f65~mv2.jpg',
-    sexo: 'femella',
-    color: 'Negre amb el pit blanc',
-    llugarRecollida: 'Cassà de la Selva'
-  },
-  {
-    id: 'R-004',
-    nombre: 'Max',
-    edad: 0,
-    raza: 'American Staffordshire',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_6b7bb112aa3146c1a84a2e80f2f07c97~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Beix i blanc',
-    llugarRecollida: 'Sant Gregori'
-  },
-  {
-    id: 'R-026',
-    nombre: 'Thor',
-    edad: 0,
-    raza: 'Malinois',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_fb447884dbb34c8bafdc1f0ebb980ab7~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Marró i negre',
-    llugarRecollida: 'Sarrià de Ter'
-  },
-  {
-    id: 'R-034',
-    nombre: 'Taison',
-    edad: 0,
-    raza: 'American Staffordshire',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_efcde19f162744da94f73d009f93ed1b~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Negre atigrat',
-    llugarRecollida: 'Cassà de la Selva'
-  },
-  {
-    id: 'R-049',
-    nombre: 'Bruno',
-    edad: 0,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_85c69b964afd4cbeadd5a14b9a2a7fcd~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Cremat i marró',
-    llugarRecollida: 'Sant Gregori'
-  },
-  {
-    id: 'R-065',
-    nombre: 'Bolt',
-    edad: 0,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_eee96a640c1848e1a8cabe0d58ffc6da~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Marró i negre',
-    llugarRecollida: 'Llagostera'
-  },
-  {
-    id: 'R-082',
-    nombre: 'Bonito',
-    edad: 0,
-    raza: 'Doberman',
-    energia: 'alta',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_ad85c4c5a71d45a8962c1bc53898ab3c~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Marró i negre'
-  },
-  {
-    id: 'R-093',
-    nombre: 'Tina',
-    edad: 0,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_a419348cb78044f9bf864cf0cbde74a2~mv2.jpg',
-    sexo: 'femella',
-    color: 'Marró i negre',
-    llugarRecollida: 'Llagostera'
-  },
-  {
-    id: 'R-110',
-    nombre: 'Zeus',
-    edad: 0,
-    raza: 'Pitbull',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_d3a334fbb6434cfca9261b36fd3ad95c~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Atigrat blanc i marró',
-    llugarRecollida: 'Llagostera'
-  },
-  {
-    id: 'R-117',
-    nombre: 'Lupito',
-    edad: 0,
-    raza: 'Pitbull',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_23562f3945be4c3096e3b03a629c00d3~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Marró, blanc i negre',
-    llugarRecollida: 'Llagostera'
-  },
-  {
-    id: 'R-118',
-    nombre: 'Kaira',
-    edad: 0,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_e27d58cb11454ddbbfd38ce535ae8067~mv2.jpg',
-    sexo: 'femella',
-    color: 'Tricolor',
-    llugarRecollida: 'Llagostera'
-  },
-  {
-    id: 'R-119',
-    nombre: 'Canela',
-    edad: 0,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_5da1516d9fad4f8fb4ec473d50724ff4~mv2.jpg',
-    sexo: 'femella',
-    color: 'Marró i negre',
-    llugarRecollida: 'Llagostera'
-  },
-  {
-    id: 'R-120',
-    nombre: 'Perla',
-    edad: 0,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_af543e83def44171bc077f8c3cf7a445~mv2.jpg',
-    sexo: 'femella',
-    color: 'Marró i negre',
-    llugarRecollida: 'Llagostera'
-  },
-  {
-    id: 'R-127',
-    nombre: 'Kiro',
-    edad: 0,
-    raza: 'Pitbull',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_375dfda1fe484fec96b7e5e5058a57ff~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Atigrat pit blanc'
-  },
-  {
-    id: 'R-133',
-    nombre: 'Eddye',
-    edad: 2,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_99358e8730f647dab57cb08e2445fc17~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Marró',
-    llugarRecollida: 'Celrà'
-  },
-  {
-    id: 'R-134',
-    nombre: 'Bobi',
-    edad: 1,
-    raza: 'Creuat',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_e8f58431a00a4c0e90a7bbde50569d69~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Negre i blanc',
-    llugarRecollida: 'Estanyol'
-  },
-  {
-    id: 'R-143',
-    nombre: 'Lucas',
-    edad: 0,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_0304d00cf25a493bb5e2d2dfd6b4bea9~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Blanc',
-    llugarRecollida: 'Bescanó'
-  },
-  {
-    id: 'R-144',
-    nombre: 'Mila',
-    edad: 0,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_8a909cd4d9e846f78539d9757bddcb7e~mv2.jpg',
-    sexo: 'femella',
-    color: 'Crema',
-    llugarRecollida: 'Bescanó'
-  },
-  {
-    id: 'R-147',
-    nombre: 'Maika',
-    edad: 5,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_8cdf5ef3313d41299f61231262309450~mv2.jpg',
-    sexo: 'femella',
-    color: 'Marró i blanc',
-    llugarRecollida: 'Sant Julià de Ramis'
-  },
-  {
-    id: 'R-148',
-    nombre: 'R-148',
-    edad: 10,
-    raza: 'Creuat',
-    energia: 'baja',
-    prioridadPaseo: 'baja',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_6b73e873c13a4b26adf72ee9ed4bb782~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Marró',
-    llugarRecollida: 'Sant Gregori'
-  },
-  {
-    id: 'R-149',
-    nombre: 'Neus',
-    edad: 10,
-    raza: 'Pastor alemany',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_fafe2060461b47888883a80e6fdfaf2c~mv2.jpg',
-    sexo: 'femella',
-    color: 'Marró i negre',
-    llugarRecollida: 'Bescanó'
-  },
-  {
-    id: 'R-151',
-    nombre: 'Trina',
-    edad: 0,
-    raza: 'Creuat',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_c3eeb21de327432f97113efc222f6102~mv2.jpg',
-    sexo: 'femella',
-    color: 'Blanc i negre',
-    llugarRecollida: 'Celrà'
-  },
-  {
-    id: 'R-152',
-    nombre: 'Puchi',
-    edad: 0,
-    raza: 'Creuat',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_62d194efec584b3499d4c009b65d7a62~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Negre pit blanc',
-    llugarRecollida: 'Sant Julià de Ramis'
-  },
-  {
-    id: 'R-153',
-    nombre: 'Ares',
-    edad: 3,
-    raza: 'Creuat',
-    energia: 'media',
-    prioridadPaseo: 'media',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_c297f466fd854f2da08b2623352c93ed~mv2.jpg',
-    sexo: 'mascle',
-    color: 'Marró i negre',
-    llugarRecollida: 'Bescanó'
-  },
-  {
-    id: 'R-155',
-    nombre: 'Yara',
-    edad: 3,
-    raza: 'Border collie',
-    energia: 'alta',
-    prioridadPaseo: 'alta',
-    ultimoPaseo: '2026-06-12T10:00:00Z',
-    necesitaPaseoHoy: true,
-    fotoUrl: 'https://static.wixstatic.com/media/c39690_981f9d02d47c41d2bda84a6ed8eeac61~mv2.jpg',
-    sexo: 'femella',
-    color: 'Negre i blanc',
-    llugarRecollida: 'Sant Gregori'
-  }
-];
+export type LoadStatus = 'idle' | 'loading' | 'ready' | 'error';
 
+/** Shape used by `createDog` — id + minimum required fields, rest optional. */
+export interface CreateDogInput {
+  id: string;
+  nombre: string;
+  raza: string;
+  edad?: number;
+  energia?: Dog['energia'];
+  prioridadPaseo?: Dog['prioridadPaseo'];
+  sexo?: Dog['sexo'];
+  color?: string;
+  llugarRecollida?: string;
+  notas?: string;
+  fotos?: string[];
+}
+
+/** Fields the UI can patch on an existing dog. */
+export type UpdateDogPatch = Partial<
+  Pick<
+    Dog,
+    | 'nombre'
+    | 'edad'
+    | 'raza'
+    | 'energia'
+    | 'prioridadPaseo'
+    | 'sexo'
+    | 'color'
+    | 'llugarRecollida'
+    | 'notas'
+    | 'estado'
+    | 'adoptadoEn'
+  >
+>;
+
+/**
+ * Reactive repository of dogs backed by Supabase, with a local cache for
+ * instant startup and offline PWA support.
+ *
+ *  - `dogs()`: current list (updated live via Supabase Realtime).
+ *  - `status()` / `error()`: load state for UI feedback.
+ *  - Mutations do optimistic updates + push to Supabase.
+ *  - Photo methods talk to Supabase Storage bucket `dog-photos`.
+ */
 @Injectable({ providedIn: 'root' })
 export class DogRepositoryService {
-  readonly dogs = signal<Dog[]>(this.loadDogs());
+  private readonly supabase = inject(SUPABASE_CLIENT);
 
-  private loadDogs(): Dog[] {
-    const fromStorage = localStorage.getItem(STORAGE_KEY);
+  readonly dogs = signal<Dog[]>(loadCache());
+  readonly status = signal<LoadStatus>('idle');
+  readonly error = signal<string | null>(null);
 
-    if (!fromStorage) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(SEED_DOGS));
-      return SEED_DOGS;
+  readonly hasCache = computed(() => this.dogs().length > 0);
+
+  private channel: RealtimeChannel | null = null;
+
+  constructor() {
+    void this.refresh();
+    this.subscribeToRealtime();
+
+    // Persist to cache on every change (feeds the next cold start / offline).
+    effect(() => {
+      const snapshot = this.dogs();
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(snapshot));
+      } catch {
+        // Ignore quota / private mode errors.
+      }
+    });
+  }
+
+  /** Force reload from Supabase. */
+  async refresh(): Promise<void> {
+    this.status.set('loading');
+    const { data, error } = await this.supabase
+      .from('dogs')
+      .select('*')
+      .order('id', { ascending: true });
+
+    if (error) {
+      this.error.set(error.message);
+      this.status.set('error');
+      return;
     }
 
-    try {
-      return JSON.parse(fromStorage) as Dog[];
-    } catch {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(SEED_DOGS));
-      return SEED_DOGS;
+    this.dogs.set(((data ?? []) as DogRow[]).map(rowToDog));
+    this.status.set('ready');
+    this.error.set(null);
+  }
+
+  /** True if a dog with `id` already exists in local state. */
+  hasDog(id: string): boolean {
+    return this.dogs().some((d) => d.id === id);
+  }
+
+  /** Create a new dog. Fails if `input.id` already exists. */
+  async createDog(input: CreateDogInput): Promise<{ ok: true } | { ok: false; message: string }> {
+    if (this.hasDog(input.id)) {
+      return { ok: false, message: `Ya existe un perro con id "${input.id}".` };
+    }
+
+    const dog: Dog = {
+      id: input.id.trim(),
+      nombre: input.nombre.trim(),
+      raza: input.raza.trim(),
+      edad: input.edad ?? 0,
+      energia: input.energia ?? 'media',
+      prioridadPaseo: input.prioridadPaseo ?? 'media',
+      ultimoPaseo: new Date().toISOString(),
+      necesitaPaseoHoy: true,
+      fotos: input.fotos ?? [],
+      estado: 'activo',
+      notas: input.notas?.trim() || undefined,
+      sexo: input.sexo,
+      color: input.color?.trim() || undefined,
+      llugarRecollida: input.llugarRecollida?.trim() || undefined
+    };
+
+    // Optimistic add.
+    this.dogs.update((list) => [...list, dog]);
+
+    const { error } = await this.supabase.from('dogs').insert(dogToRow(dog));
+    if (error) {
+      // Rollback.
+      this.dogs.update((list) => list.filter((d) => d.id !== dog.id));
+      return { ok: false, message: error.message };
+    }
+    return { ok: true };
+  }
+
+  /** Insert-or-update a dog. */
+  async upsertDog(dog: Dog): Promise<void> {
+    this.dogs.update((list) => {
+      const idx = list.findIndex((d) => d.id === dog.id);
+      return idx === -1
+        ? [...list, dog]
+        : list.map((d) => (d.id === dog.id ? dog : d));
+    });
+
+    const { error } = await this.supabase.from('dogs').upsert(dogToRow(dog));
+    if (error) {
+      this.error.set(error.message);
+      // Reconcile on failure so the UI matches the server.
+      void this.refresh();
     }
   }
+
+  /**
+   * Patch an existing dog. Only the provided fields are sent.
+   * Handles the `estado === 'adoptado'` side effect (sets `adoptadoEn`).
+   */
+  async updateDog(id: string, patch: UpdateDogPatch): Promise<{ ok: true } | { ok: false; message: string }> {
+    const current = this.dogs().find((d) => d.id === id);
+    if (!current) return { ok: false, message: 'El perro ya no existe.' };
+
+    // Auto-manage adoption timestamp.
+    const applied: UpdateDogPatch = { ...patch };
+    if (patch.estado && patch.estado !== current.estado) {
+      applied.adoptadoEn =
+        patch.estado === 'adoptado' ? new Date().toISOString() : undefined;
+    }
+
+    const next: Dog = { ...current, ...applied } as Dog;
+    const previous = this.dogs();
+    this.dogs.update((list) => list.map((d) => (d.id === id ? next : d)));
+
+    const row: Partial<DogRow> = {};
+    if (applied.nombre !== undefined) row.nombre = applied.nombre;
+    if (applied.edad !== undefined) row.edad = applied.edad;
+    if (applied.raza !== undefined) row.raza = applied.raza;
+    if (applied.energia !== undefined) row.energia = applied.energia;
+    if (applied.prioridadPaseo !== undefined) row.prioridad_paseo = applied.prioridadPaseo;
+    if (applied.sexo !== undefined) row.sexo = applied.sexo ?? null;
+    if (applied.color !== undefined) row.color = applied.color ?? null;
+    if (applied.llugarRecollida !== undefined) row.llugar_recollida = applied.llugarRecollida ?? null;
+    if (applied.notas !== undefined) row.notas = applied.notas ?? null;
+    if (applied.estado !== undefined) row.estado = applied.estado;
+    if (applied.adoptadoEn !== undefined) row.adoptado_en = applied.adoptadoEn ?? null;
+
+    const { error } = await this.supabase.from('dogs').update(row).eq('id', id);
+    if (error) {
+      this.dogs.set(previous);
+      return { ok: false, message: error.message };
+    }
+    return { ok: true };
+  }
+
+  /** Delete a dog by id. */
+  async deleteDog(id: string): Promise<void> {
+    const previous = this.dogs();
+    this.dogs.update((list) => list.filter((d) => d.id !== id));
+
+    const { error } = await this.supabase.from('dogs').delete().eq('id', id);
+    if (error) {
+      this.error.set(error.message);
+      this.dogs.set(previous);
+    }
+  }
+
+  /** Mark a dog as walked (updates `ultimoPaseo` and clears the pending flag). */
+  async markWalked(id: string, when: Date = new Date()): Promise<void> {
+    const iso = when.toISOString();
+    this.dogs.update((list) =>
+      list.map((d) =>
+        d.id === id
+          ? { ...d, ultimoPaseo: iso, necesitaPaseoHoy: false }
+          : d
+      )
+    );
+
+    const { error } = await this.supabase
+      .from('dogs')
+      .update({ ultimo_paseo: iso, necesita_paseo_hoy: false })
+      .eq('id', id);
+
+    if (error) {
+      this.error.set(error.message);
+      void this.refresh();
+    }
+  }
+
+  // ==========================================================================
+  // Photos (Supabase Storage — bucket `dog-photos`)
+  // ==========================================================================
+
+  /**
+   * Upload a photo file to the bucket and append its public URL to the dog's
+   * `fotos` array. Returns the resulting public URL.
+   */
+  async addPhoto(dogId: string, file: File): Promise<{ ok: true; url: string } | { ok: false; message: string }> {
+    const ext = extensionFromFile(file);
+    const path = `${dogId}/${crypto.randomUUID()}.${ext}`;
+
+    const upload = await this.supabase.storage
+      .from(PHOTOS_BUCKET)
+      .upload(path, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type || undefined
+      });
+
+    if (upload.error) {
+      return { ok: false, message: upload.error.message };
+    }
+
+    const { data: pub } = this.supabase.storage
+      .from(PHOTOS_BUCKET)
+      .getPublicUrl(path);
+    const url = pub.publicUrl;
+
+    // Optimistic array update.
+    const previous = this.dogs();
+    this.dogs.update((list) =>
+      list.map((d) => (d.id === dogId ? { ...d, fotos: [...d.fotos, url] } : d))
+    );
+
+    const dog = this.dogs().find((d) => d.id === dogId);
+    if (!dog) {
+      // Dog was removed between operations; try to clean up the orphan file.
+      void this.supabase.storage.from(PHOTOS_BUCKET).remove([path]);
+      return { ok: false, message: 'El perro ya no existe.' };
+    }
+
+    const { error } = await this.supabase
+      .from('dogs')
+      .update({ fotos: dog.fotos })
+      .eq('id', dogId);
+
+    if (error) {
+      // Rollback both the array and the uploaded file.
+      this.dogs.set(previous);
+      void this.supabase.storage.from(PHOTOS_BUCKET).remove([path]);
+      return { ok: false, message: error.message };
+    }
+
+    return { ok: true, url };
+  }
+
+  /** Remove a photo URL from the dog's array and delete it from Storage. */
+  async removePhoto(dogId: string, url: string): Promise<void> {
+    const previous = this.dogs();
+    this.dogs.update((list) =>
+      list.map((d) =>
+        d.id === dogId ? { ...d, fotos: d.fotos.filter((u) => u !== url) } : d
+      )
+    );
+
+    const dog = this.dogs().find((d) => d.id === dogId);
+    if (!dog) return;
+
+    const { error } = await this.supabase
+      .from('dogs')
+      .update({ fotos: dog.fotos })
+      .eq('id', dogId);
+
+    if (error) {
+      this.error.set(error.message);
+      this.dogs.set(previous);
+      return;
+    }
+
+    // Best-effort cleanup of the underlying file (ignore errors).
+    const path = pathFromPublicUrl(url);
+    if (path) {
+      void this.supabase.storage.from(PHOTOS_BUCKET).remove([path]);
+    }
+  }
+
+  /** Move a photo URL to position 0 (make it the primary/card cover). */
+  async setPrimaryPhoto(dogId: string, url: string): Promise<void> {
+    const previous = this.dogs();
+    this.dogs.update((list) =>
+      list.map((d) => {
+        if (d.id !== dogId || !d.fotos.includes(url)) return d;
+        const others = d.fotos.filter((u) => u !== url);
+        return { ...d, fotos: [url, ...others] };
+      })
+    );
+
+    const dog = this.dogs().find((d) => d.id === dogId);
+    if (!dog) return;
+
+    const { error } = await this.supabase
+      .from('dogs')
+      .update({ fotos: dog.fotos })
+      .eq('id', dogId);
+
+    if (error) {
+      this.error.set(error.message);
+      this.dogs.set(previous);
+    }
+  }
+
+  private subscribeToRealtime(): void {
+    this.channel = this.supabase
+      .channel('gossera-dogs')
+      .on(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'postgres_changes' as any,
+        { event: '*', schema: 'public', table: 'dogs' },
+        () => void this.refresh()
+      )
+      .subscribe();
+  }
+}
+
+// ============================================================================
+// Helpers
+// ============================================================================
+
+function loadCache(): Dog[] {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    // Normalize old cache shape (`fotoUrl`, missing `estado`) → new shape.
+    return (parsed as Dog[]).map((d) => ({
+      ...d,
+      estado: d.estado ?? 'activo',
+      fotos: Array.isArray(d.fotos)
+        ? d.fotos
+        : (d as unknown as { fotoUrl?: string }).fotoUrl
+          ? [(d as unknown as { fotoUrl: string }).fotoUrl]
+          : []
+    }));
+  } catch {
+    return [];
+  }
+}
+
+function extensionFromFile(file: File): string {
+  const fromName = file.name.split('.').pop()?.toLowerCase();
+  if (fromName && fromName.length <= 5) return fromName;
+  const fromMime = file.type.split('/')[1];
+  return fromMime || 'jpg';
+}
+
+/** Extract the object path from a Supabase Storage public URL. */
+function pathFromPublicUrl(url: string): string | null {
+  const marker = `/object/public/${PHOTOS_BUCKET}/`;
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  return url.slice(idx + marker.length);
 }
