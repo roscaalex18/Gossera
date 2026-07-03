@@ -23,6 +23,7 @@ export class EditDogModalComponent {
   );
 
   // === Estado del formulario ===
+  readonly codigo = signal('');
   readonly nombre = signal('');
   readonly raza = signal('');
   readonly edad = signal<number>(0);
@@ -52,6 +53,7 @@ export class EditDogModalComponent {
       const d = this.dog();
       if (!d || this.hydrated) return;
       untracked(() => {
+        this.codigo.set(d.codigo ?? '');
         this.nombre.set(d.nombre);
         this.raza.set(d.raza);
         this.edad.set(d.edad);
@@ -93,6 +95,7 @@ export class EditDogModalComponent {
 
     const nextEstado = this.estado();
     const patch: UpdateDogPatch = {
+      codigo: this.codigo().trim() || undefined,
       nombre: this.nombre().trim(),
       raza: this.raza().trim(),
       edad: Number.isFinite(this.edad()) ? Number(this.edad()) : 0,

@@ -3,7 +3,14 @@ export type DogWalkPriority = 'alta' | 'media' | 'baja';
 export type DogEstado = 'activo' | 'adoptado' | 'fallecido' | 'trasladado';
 
 export interface Dog {
+  /** Internal primary key (auto-generated, never shown to the user). */
   id: string;
+  /**
+   * Código externo (p.ej. de la ficha del ayuntamiento). Opcional: se rellena
+   * cuando se conoce, si es que se conoce alguna vez. Sirve para cruzar con
+   * registros externos aunque los nombres del perro sean distintos.
+   */
+  codigo?: string;
   nombre: string;
   edad: number;
   raza: string;

@@ -9,11 +9,12 @@ const PHOTOS_BUCKET = 'dog-photos';
 
 export type LoadStatus = 'idle' | 'loading' | 'ready' | 'error';
 
-/** Shape used by `createDog` — id is optional (auto-generated when omitted). */
+/** Shape used by `createDog`. The internal `id` (PK) is always auto-generated. */
 export interface CreateDogInput {
-  id?: string;
   nombre: string;
   raza: string;
+  /** External code (e.g. from the town hall record). Optional. */
+  codigo?: string;
   edad?: number;
   energia?: Dog['energia'];
   prioridadPaseo?: Dog['prioridadPaseo'];
@@ -34,6 +35,7 @@ export type UpdateDogPatch = Partial<
     | 'nombre'
     | 'edad'
     | 'raza'
+    | 'codigo'
     | 'energia'
     | 'prioridadPaseo'
     | 'sexo'
@@ -109,8 +111,9 @@ export class DogRepositoryService {
   }
 
   /**
-   * Generate a unique auto-id in `R-XXXXXX` format (6 hex chars).
-   * Retries against the local cache until an unused id is produced.
+   * Generate a unique auto-id in `R-XXXXXX` format (6 hex chars) for the
+   * internal primary key. Never shown to the user; retries against the
+   * local cache until an unused id is produced.
    */
   private generateDogId(): string {
     let id: string;
@@ -122,18 +125,17 @@ export class DogRepositoryService {
   }
 
   /**
-   * Create a new dog. If `input.id` is provided, fails on duplicate.
-   * If omitted, an id is auto-generated (`R-XXXXXX`).
+   * Create a new dog. The technical `id` is always auto-generated.
+   * `codigo` (external reference) is optional; if provided it must be unique
+   * at the DB level (see migration 007).
    */
   async createDog(input: CreateDogInput): Promise<{ ok: true; id: string } | { ok: false; message: string }> {
-    const providedId = input.id?.trim();
-    if (providedId && this.hasDog(providedId)) {
-      return { ok: false, message: `Ya existe un perro con id "${providedId}".` };
-    }
-    const id = providedId || this.generateDogId();
+    const id = this.generateDogId();
+    const codigo = input.codigo?.trim() || undefined;
 
     const dog: Dog = {
       id,
+      codigo,
       nombre: input.nombre.trim(),
       raza: input.raza.trim(),
       edad: input.edad ?? 0,
@@ -202,6 +204,7 @@ export class DogRepositoryService {
 
     const row: Partial<DogRow> = {};
     if (applied.nombre !== undefined) row.nombre = applied.nombre;
+    if (applied.codigo !== undefined) row.codigo = applied.codigo ?? null;
     if (applied.edad !== undefined) row.edad = applied.edad;
     if (applied.raza !== undefined) row.raza = applied.raza;
     if (applied.energia !== undefined) row.energia = applied.energia;

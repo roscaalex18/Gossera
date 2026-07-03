@@ -10,7 +10,10 @@
     <div class="sheet__title">
       <h2>Editar ficha</h2>
       @if (dog(); as d) {
-        <p>{{ d.nombre }} · {{ d.id }}</p>
+        <p>
+          {{ d.nombre }}
+          @if (d.codigo) { · {{ d.codigo }} }
+        </p>
       }
     </div>
     <button
@@ -40,6 +43,18 @@
             required
             [ngModel]="nombre()"
             (ngModelChange)="nombre.set($event)"
+          />
+        </label>
+
+        <label class="field">
+          <span>Código <small>(opcional)</small></span>
+          <input
+            type="text"
+            name="codigo"
+            placeholder="Código del ayuntamiento"
+            autocomplete="off"
+            [ngModel]="codigo()"
+            (ngModelChange)="codigo.set($event)"
           />
         </label>
 

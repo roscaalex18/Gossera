@@ -44,7 +44,7 @@ export class WalksPageComponent {
         if (!dog) return false;
         return (
           dog.nombre.toLowerCase().includes(q) ||
-          dog.id.toLowerCase().includes(q) ||
+          (dog.codigo ?? '').toLowerCase().includes(q) ||
           dog.raza.toLowerCase().includes(q)
         );
       });

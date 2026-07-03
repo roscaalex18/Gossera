@@ -17,7 +17,7 @@ export class NewDogSheetComponent {
   readonly close = output<void>();
   readonly created = output<string>();
 
-  readonly id = signal('');
+  readonly codigo = signal('');
   readonly nombre = signal('');
   readonly raza = signal('Creuat');
   readonly edad = signal<number>(0);
@@ -50,7 +50,7 @@ export class NewDogSheetComponent {
     this.errorMessage.set(null);
 
     const input: CreateDogInput = {
-      id: this.id().trim() || undefined,
+      codigo: this.codigo().trim() || undefined,
       nombre: this.nombre().trim(),
       raza: this.raza().trim(),
       edad: Number.isFinite(this.edad()) ? Number(this.edad()) : 0,

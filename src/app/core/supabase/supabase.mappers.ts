@@ -7,6 +7,7 @@ import { Dog, DogEstado } from '../models/dog.model';
 
 export interface DogRow {
   id: string;
+  codigo: string | null;
   nombre: string;
   edad: number;
   raza: string;
@@ -29,6 +30,7 @@ export interface DogRow {
 export function rowToDog(row: DogRow): Dog {
   return {
     id: row.id,
+    codigo: row.codigo ?? undefined,
     nombre: row.nombre,
     edad: row.edad,
     raza: row.raza,
@@ -52,6 +54,7 @@ export function rowToDog(row: DogRow): Dog {
 export function dogToRow(dog: Dog): DogRow {
   return {
     id: dog.id,
+    codigo: dog.codigo ?? null,
     nombre: dog.nombre,
     edad: dog.edad,
     raza: dog.raza,

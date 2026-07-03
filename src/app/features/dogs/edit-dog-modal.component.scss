@@ -146,6 +146,13 @@
   margin-left: 2px;
 }
 
+.field small {
+  color: #5b7290;
+  font-weight: 500;
+  font-size: 0.78rem;
+  margin-left: 3px;
+}
+
 .field--wide {
   grid-column: 1 / -1;
 }

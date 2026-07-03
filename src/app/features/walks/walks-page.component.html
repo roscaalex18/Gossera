@@ -21,7 +21,7 @@
     <input
       type="search"
       class="walks-page__search"
-      placeholder="Filtrar por perro (nombre, id o raza)"
+      placeholder="Filtrar por perro (nombre, código o raza)"
       [value]="query()"
       (input)="onSearch($event)"
     />
@@ -41,8 +41,8 @@
           <div class="walk-item__info">
             <div class="walk-item__title">
               <strong>{{ item.dog?.nombre ?? '(perro eliminado)' }}</strong>
-              @if (item.dog) {
-                <span class="walk-item__id">· {{ item.dog.id }}</span>
+              @if (item.dog?.codigo; as codigo) {
+                <span class="walk-item__id">· {{ codigo }}</span>
               }
             </div>
             <span class="walk-item__time">

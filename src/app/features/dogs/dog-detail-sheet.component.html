@@ -4,7 +4,10 @@
   <header class="sheet__header">
     <div class="sheet__title">
       <h2>{{ dog()?.nombre }}</h2>
-      <p>{{ dog()?.id }} · {{ dog()?.raza }} · {{ dog()?.edad }} a</p>
+      <p>
+        @if (dog()?.codigo; as codigo) { {{ codigo }} · }
+        {{ dog()?.raza }} · {{ dog()?.edad }} a
+      </p>
     </div>
     <div class="sheet__header-actions">
       <button type="button" class="btn-edit" (click)="openEdit()" aria-label="Editar ficha">
@@ -70,6 +73,10 @@
       <section class="section">
         <h3 class="section__title">Datos</h3>
         <dl class="info-grid">
+          <div>
+            <dt>Código</dt>
+            <dd>{{ d.codigo ?? '—' }}</dd>
+          </div>
           <div><dt>Estado</dt><dd>{{ estadoLabel(d.estado) }}</dd></div>
           <div><dt>Energía</dt><dd>{{ d.energia }}</dd></div>
           <div><dt>Prioridad paseo</dt><dd>{{ d.prioridadPaseo }}</dd></div>
