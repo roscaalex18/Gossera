@@ -14,15 +14,18 @@
 
 .dog-card img {
   width: 100%;
-  height: 240px;
+  aspect-ratio: 4 / 3;
+  height: auto;
   object-fit: cover;
-  object-position: center top;
+  /* Anchor slightly above center: heads usually live in the top third,
+     but not right at the edge, so we avoid cropping ears / floppy tops. */
+  object-position: center 25%;
   display: block;
 }
 
 .dog-card__no-photo {
   width: 100%;
-  height: 240px;
+  aspect-ratio: 4 / 3;
   display: grid;
   place-items: center;
   background: #eaf2fd;
@@ -201,7 +204,10 @@
     width: 88px;
     height: auto;
     min-height: 100%;
-    flex: 0 0 88px;    object-position: center top;  }
+    flex: 0 0 88px;
+    aspect-ratio: auto;
+    object-position: center 25%;
+  }
 
   .dog-card__content {
     padding: 0.6rem 0.75rem;
