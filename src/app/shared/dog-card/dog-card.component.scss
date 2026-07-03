@@ -55,6 +55,65 @@
   font-size: 1.2rem;
 }
 
+.dog-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.ppp-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.55rem;
+  white-space: nowrap;
+  background: #7a1414;
+  color: #ffffff;
+  border: 1px solid #5a0e0e;
+  text-transform: uppercase;
+}
+
+.dog-card__flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: -0.1rem;
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  flex: 0 0 auto;
+}
+
+.flag--warning {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+.flag--danger {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+.flag__icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  display: block;
+}
+
 .priority-pill {
   display: inline-block;
   border-radius: 999px;
@@ -90,6 +149,29 @@
   gap: 0.15rem;
   color: #2f4963;
   font-size: 0.88rem;
+}
+
+.dog-card__box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  align-self: flex-start;
+  padding: 0.15rem 0.55rem 0.15rem 0.4rem;
+  margin-bottom: 0.1rem;
+  border-radius: 999px;
+  background: #e8eef8;
+  border: 1px solid #ccd8ea;
+  color: #0f2e4d;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.dog-card__box-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: #d94a4a;
+  flex: 0 0 auto;
 }
 
 .pending {
@@ -138,5 +220,31 @@
 
   .dog-card__meta {
     font-size: 0.78rem;
+  }
+
+  .dog-card__box {
+    font-size: 0.74rem;
+    padding: 0.1rem 0.45rem 0.1rem 0.35rem;
+  }
+
+  .dog-card__box-icon {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+
+  .ppp-pill,
+  .priority-pill {
+    font-size: 0.66rem;
+    padding: 0.15rem 0.45rem;
+  }
+
+  .flag {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+
+  .flag__icon {
+    width: 0.85rem;
+    height: 0.85rem;
   }
 }

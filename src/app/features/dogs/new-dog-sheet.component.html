@@ -93,8 +93,8 @@
           (ngModelChange)="sexo.set($event)"
         >
           <option value="">-</option>
-          <option value="mascle">Macho</option>
-          <option value="femella">Hembra</option>
+          <option value="male">Macho</option>
+          <option value="female">Hembra</option>
         </select>
       </label>
 
@@ -108,15 +108,47 @@
         />
       </label>
 
-      <label class="field field--wide">
-        <span>Lugar de recogida</span>
-        <input
-          type="text"
-          name="llugarRecollida"
-          [ngModel]="llugarRecollida()"
-          (ngModelChange)="llugarRecollida.set($event)"
-        />
-      </label>
+      <fieldset class="field field--wide flags-fieldset">
+        <legend>Avisos de seguridad</legend>
+        <div class="flags-grid">
+          <label class="flag-check">
+            <input
+              type="checkbox"
+              name="esPPP"
+              [ngModel]="esPPP()"
+              (ngModelChange)="esPPP.set($event)"
+            />
+            <span>PPP <small>(Perro Potencialmente Peligroso)</small></span>
+          </label>
+          <label class="flag-check">
+            <input
+              type="checkbox"
+              name="bozalObligatorio"
+              [ngModel]="bozalObligatorio()"
+              (ngModelChange)="bozalObligatorio.set($event)"
+            />
+            <span>Bozal obligatorio</span>
+          </label>
+          <label class="flag-check">
+            <input
+              type="checkbox"
+              name="cuidadoMachos"
+              [ngModel]="cuidadoMachos()"
+              (ngModelChange)="cuidadoMachos.set($event)"
+            />
+            <span>Cuidado con machos</span>
+          </label>
+          <label class="flag-check">
+            <input
+              type="checkbox"
+              name="cuidadoHembras"
+              [ngModel]="cuidadoHembras()"
+              (ngModelChange)="cuidadoHembras.set($event)"
+            />
+            <span>Cuidado con hembras</span>
+          </label>
+        </div>
+      </fieldset>
 
       <label class="field field--wide">
         <span>Notas importantes</span>

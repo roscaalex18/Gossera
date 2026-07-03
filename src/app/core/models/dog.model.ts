@@ -17,7 +17,14 @@ export interface Dog {
   notas?: string;
   /** ISO date when the dog was adopted (only meaningful if estado === 'adoptado'). */
   adoptadoEn?: string;
-  sexo?: 'mascle' | 'femella';
+  sexo?: 'male' | 'female';
   color?: string;
-  llugarRecollida?: string;
+  /** Marcado manualmente como Perro Potencialmente Peligroso. */
+  esPPP: boolean;
+  /** Obligatorio pasearlo con bozal. */
+  bozalObligatorio: boolean;
+  /** Precaución al cruzarse con otros machos. */
+  cuidadoMachos: boolean;
+  /** Precaución al cruzarse con otras hembras. */
+  cuidadoHembras: boolean;
 }

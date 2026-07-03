@@ -19,9 +19,12 @@ export interface CreateDogInput {
   prioridadPaseo?: Dog['prioridadPaseo'];
   sexo?: Dog['sexo'];
   color?: string;
-  llugarRecollida?: string;
   notas?: string;
   fotos?: string[];
+  esPPP?: boolean;
+  bozalObligatorio?: boolean;
+  cuidadoMachos?: boolean;
+  cuidadoHembras?: boolean;
 }
 
 /** Fields the UI can patch on an existing dog. */
@@ -35,10 +38,13 @@ export type UpdateDogPatch = Partial<
     | 'prioridadPaseo'
     | 'sexo'
     | 'color'
-    | 'llugarRecollida'
     | 'notas'
     | 'estado'
     | 'adoptadoEn'
+    | 'esPPP'
+    | 'bozalObligatorio'
+    | 'cuidadoMachos'
+    | 'cuidadoHembras'
   >
 >;
 
@@ -122,7 +128,10 @@ export class DogRepositoryService {
       notas: input.notas?.trim() || undefined,
       sexo: input.sexo,
       color: input.color?.trim() || undefined,
-      llugarRecollida: input.llugarRecollida?.trim() || undefined
+      esPPP: input.esPPP ?? false,
+      bozalObligatorio: input.bozalObligatorio ?? false,
+      cuidadoMachos: input.cuidadoMachos ?? false,
+      cuidadoHembras: input.cuidadoHembras ?? false
     };
 
     // Optimistic add.
@@ -181,10 +190,13 @@ export class DogRepositoryService {
     if (applied.prioridadPaseo !== undefined) row.prioridad_paseo = applied.prioridadPaseo;
     if (applied.sexo !== undefined) row.sexo = applied.sexo ?? null;
     if (applied.color !== undefined) row.color = applied.color ?? null;
-    if (applied.llugarRecollida !== undefined) row.llugar_recollida = applied.llugarRecollida ?? null;
     if (applied.notas !== undefined) row.notas = applied.notas ?? null;
     if (applied.estado !== undefined) row.estado = applied.estado;
     if (applied.adoptadoEn !== undefined) row.adoptado_en = applied.adoptadoEn ?? null;
+    if (applied.esPPP !== undefined) row.es_ppp = applied.esPPP;
+    if (applied.bozalObligatorio !== undefined) row.bozal_obligatorio = applied.bozalObligatorio;
+    if (applied.cuidadoMachos !== undefined) row.cuidado_machos = applied.cuidadoMachos;
+    if (applied.cuidadoHembras !== undefined) row.cuidado_hembras = applied.cuidadoHembras;
 
     const { error } = await this.supabase.from('dogs').update(row).eq('id', id);
     if (error) {
@@ -363,7 +375,7 @@ function loadCache(): Dog[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    // Normalize old cache shape (`fotoUrl`, missing `estado`) → new shape.
+    // Normalize old cache shape (`fotoUrl`, missing `estado` / safety flags) → new shape.
     return (parsed as Dog[]).map((d) => ({
       ...d,
       estado: d.estado ?? 'activo',
@@ -371,7 +383,11 @@ function loadCache(): Dog[] {
         ? d.fotos
         : (d as unknown as { fotoUrl?: string }).fotoUrl
           ? [(d as unknown as { fotoUrl: string }).fotoUrl]
-          : []
+          : [],
+      esPPP: d.esPPP ?? false,
+      bozalObligatorio: d.bozalObligatorio ?? false,
+      cuidadoMachos: d.cuidadoMachos ?? false,
+      cuidadoHembras: d.cuidadoHembras ?? false
     }));
   } catch {
     return [];

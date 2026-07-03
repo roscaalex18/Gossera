@@ -18,9 +18,12 @@ export interface DogRow {
   estado: DogEstado | null;
   notas: string | null;
   adoptado_en: string | null;
-  sexo: 'mascle' | 'femella' | null;
+  sexo: 'male' | 'female' | null;
   color: string | null;
-  llugar_recollida: string | null;
+  es_ppp: boolean | null;
+  bozal_obligatorio: boolean | null;
+  cuidado_machos: boolean | null;
+  cuidado_hembras: boolean | null;
 }
 
 export function rowToDog(row: DogRow): Dog {
@@ -39,7 +42,10 @@ export function rowToDog(row: DogRow): Dog {
     adoptadoEn: row.adoptado_en ?? undefined,
     sexo: row.sexo ?? undefined,
     color: row.color ?? undefined,
-    llugarRecollida: row.llugar_recollida ?? undefined
+    esPPP: row.es_ppp ?? false,
+    bozalObligatorio: row.bozal_obligatorio ?? false,
+    cuidadoMachos: row.cuidado_machos ?? false,
+    cuidadoHembras: row.cuidado_hembras ?? false
   };
 }
 
@@ -59,6 +65,9 @@ export function dogToRow(dog: Dog): DogRow {
     adoptado_en: dog.adoptadoEn ?? null,
     sexo: dog.sexo ?? null,
     color: dog.color ?? null,
-    llugar_recollida: dog.llugarRecollida ?? null
+    es_ppp: dog.esPPP,
+    bozal_obligatorio: dog.bozalObligatorio,
+    cuidado_machos: dog.cuidadoMachos,
+    cuidado_hembras: dog.cuidadoHembras
   };
 }

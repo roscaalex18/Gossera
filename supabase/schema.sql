@@ -23,9 +23,8 @@ create table if not exists public.dogs (
                          check (estado in ('activo', 'adoptado', 'fallecido', 'trasladado')),
   notas                text,
   adoptado_en          timestamptz,
-  sexo                 text check (sexo in ('mascle', 'femella')),
+  sexo                 text check (sexo in ('male', 'female')),
   color                text,
-  llugar_recollida     text,
   created_at           timestamptz not null default now(),
   updated_at           timestamptz not null default now()
 );

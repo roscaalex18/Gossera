@@ -23,9 +23,13 @@ export class NewDogSheetComponent {
   readonly edad = signal<number>(0);
   readonly energia = signal<'alta' | 'media' | 'baja'>('media');
   readonly prioridadPaseo = signal<'alta' | 'media' | 'baja'>('media');
-  readonly sexo = signal<'mascle' | 'femella' | ''>('');
+  readonly sexo = signal<'male' | 'female' | ''>('');
   readonly color = signal('');
-  readonly llugarRecollida = signal('');
+
+  readonly esPPP = signal(false);
+  readonly bozalObligatorio = signal(false);
+  readonly cuidadoMachos = signal(false);
+  readonly cuidadoHembras = signal(false);
 
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -55,8 +59,11 @@ export class NewDogSheetComponent {
       prioridadPaseo: this.prioridadPaseo(),
       sexo: this.sexo() || undefined,
       color: this.color().trim() || undefined,
-      llugarRecollida: this.llugarRecollida().trim() || undefined,
-      notas: this.notas().trim() || undefined
+      notas: this.notas().trim() || undefined,
+      esPPP: this.esPPP(),
+      bozalObligatorio: this.bozalObligatorio(),
+      cuidadoMachos: this.cuidadoMachos(),
+      cuidadoHembras: this.cuidadoHembras()
     };
 
     const result = await this.dogRepository.createDog(input);

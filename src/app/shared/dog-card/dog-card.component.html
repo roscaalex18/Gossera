@@ -8,16 +8,98 @@
   <div class="dog-card__content">
     <div class="dog-card__title-row">
       <h2>{{ dog().nombre }}</h2>
-      <span class="priority-pill" [ngClass]="priorityClass(dog().prioridadPaseo)">
-        Prioridad {{ dog().prioridadPaseo }}
-      </span>
+      <div class="dog-card__badges">
+        @if (dog().esPPP) {
+          <span
+            class="ppp-pill"
+            title="Perro Potencialmente Peligroso"
+            aria-label="Perro potencialmente peligroso"
+          >PPP</span>
+        }
+        <span class="priority-pill" [ngClass]="priorityClass(dog().prioridadPaseo)">
+          Prioridad {{ dog().prioridadPaseo }}
+        </span>
+      </div>
     </div>
+
+    @if (hasSafetyFlags()) {
+      <div class="dog-card__flags" role="group" aria-label="Avisos de seguridad">
+        @if (dog().bozalObligatorio) {
+          <span
+            class="flag flag--warning"
+            title="Bozal obligatorio"
+            aria-label="Bozal obligatorio"
+          >
+            <svg class="flag__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                d="M4 11c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v1.5c0 2.76-3.58 5-8 5s-8-2.24-8-5V11Z"
+                fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"
+              />
+              <path
+                d="M8 10.5v5.5M12 10.5v6.5M16 10.5v5.5"
+                fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+              />
+              <path
+                d="M3 10.5h18"
+                fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+              />
+            </svg>
+          </span>
+        }
+        @if (dog().cuidadoMachos) {
+          <span
+            class="flag flag--danger"
+            title="Precaución con otros machos"
+            aria-label="Precaución con otros machos"
+          >
+            <svg class="flag__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="10" cy="14" r="5.2" fill="none" stroke="currentColor" stroke-width="1.9" />
+              <path
+                d="M14 10 L20 4 M20 4 h-5 M20 4 v5"
+                fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+        }
+        @if (dog().cuidadoHembras) {
+          <span
+            class="flag flag--danger"
+            title="Precaución con otras hembras"
+            aria-label="Precaución con otras hembras"
+          >
+            <svg class="flag__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="10" r="5.2" fill="none" stroke="currentColor" stroke-width="1.9" />
+              <path
+                d="M12 15.2 V22 M9 19 h6"
+                fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+              />
+            </svg>
+          </span>
+        }
+      </div>
+    }
 
     <p class="dog-card__subtitle">
       {{ dog().raza }} · {{ dog().edad }} años · Energia {{ dog().energia }}
     </p>
 
     <div class="dog-card__meta">
+      @if (boxName(); as box) {
+        <span class="dog-card__box" [attr.aria-label]="'Ubicación: ' + box">
+          <svg
+            class="dog-card__box-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M12 2C7.58 2 4 5.58 4 10c0 5.25 7.11 11.4 7.42 11.66a.9.9 0 0 0 1.16 0C12.89 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"
+              fill="currentColor"
+            />
+          </svg>
+          <span>{{ box }}</span>
+        </span>
+      }
       <span>
         Ultimo paseo: {{ dog().ultimoPaseo | date: 'dd/MM HH:mm' }}
       </span>
