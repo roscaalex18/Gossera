@@ -12,12 +12,11 @@
   <form class="sheet__form" (ngSubmit)="submit()" novalidate>
     <div class="grid">
       <label class="field">
-        <span>ID <em>*</em></span>
+        <span>ID <small>(opcional)</small></span>
         <input
           type="text"
           name="id"
-          required
-          placeholder="R-160"
+          placeholder="Se generará uno si lo dejas vacío"
           autocomplete="off"
           [ngModel]="id()"
           (ngModelChange)="id.set($event)"

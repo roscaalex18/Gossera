@@ -38,7 +38,6 @@ export class NewDogSheetComponent {
 
   readonly canSubmit = computed(
     () =>
-      this.id().trim().length > 0 &&
       this.nombre().trim().length > 0 &&
       this.raza().trim().length > 0 &&
       !this.saving()
@@ -51,7 +50,7 @@ export class NewDogSheetComponent {
     this.errorMessage.set(null);
 
     const input: CreateDogInput = {
-      id: this.id().trim(),
+      id: this.id().trim() || undefined,
       nombre: this.nombre().trim(),
       raza: this.raza().trim(),
       edad: Number.isFinite(this.edad()) ? Number(this.edad()) : 0,
@@ -74,7 +73,7 @@ export class NewDogSheetComponent {
       return;
     }
 
-    this.created.emit(input.id);
+    this.created.emit(result.id);
     this.close.emit();
   }
 

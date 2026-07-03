@@ -183,14 +183,23 @@ const DEFAULT_REGIONS: ShelterRegion[] = [
     colStart: 49,
     colEnd: 52,
   },
+    {
+    id: 'k-10',
+    name: '10',
+    type: 'chenil-normal',
+    rowStart: rowStartPPP,
+    rowEnd: rowStartPPP + 3,
+    colStart: 54,
+    colEnd: 59,
+  },
   {
     id: 'k-9',
     name: '9',
     type: 'chenil-normal',
     rowStart: rowStartPPP - 3,
     rowEnd: rowStartPPP + 2,
-    colStart: 59,
-    colEnd: 62,
+    colStart: 61,
+    colEnd: 64,
   },
 
   // === Patio 3 y 4 (centro) ===
@@ -302,6 +311,15 @@ const DEFAULT_REGIONS: ShelterRegion[] = [
   },
 
   // === Boxes 15-22 (pila vertical, derecha) ===
+    {
+    id: 'k-15',
+    name: '15',
+    type: 'chenil-normal',
+    rowStart: rowEnd - 38,
+    rowEnd: rowEnd - 35,
+    colStart: 62,
+    colEnd: 68,
+  },
   {
     id: 'k-16',
     name: '16',

@@ -9,9 +9,9 @@ const PHOTOS_BUCKET = 'dog-photos';
 
 export type LoadStatus = 'idle' | 'loading' | 'ready' | 'error';
 
-/** Shape used by `createDog` — id + minimum required fields, rest optional. */
+/** Shape used by `createDog` — id is optional (auto-generated when omitted). */
 export interface CreateDogInput {
-  id: string;
+  id?: string;
   nombre: string;
   raza: string;
   edad?: number;
@@ -108,14 +108,32 @@ export class DogRepositoryService {
     return this.dogs().some((d) => d.id === id);
   }
 
-  /** Create a new dog. Fails if `input.id` already exists. */
-  async createDog(input: CreateDogInput): Promise<{ ok: true } | { ok: false; message: string }> {
-    if (this.hasDog(input.id)) {
-      return { ok: false, message: `Ya existe un perro con id "${input.id}".` };
+  /**
+   * Generate a unique auto-id in `R-XXXXXX` format (6 hex chars).
+   * Retries against the local cache until an unused id is produced.
+   */
+  private generateDogId(): string {
+    let id: string;
+    do {
+      const random = crypto.randomUUID().replace(/-/g, '').slice(0, 6).toUpperCase();
+      id = `R-${random}`;
+    } while (this.hasDog(id));
+    return id;
+  }
+
+  /**
+   * Create a new dog. If `input.id` is provided, fails on duplicate.
+   * If omitted, an id is auto-generated (`R-XXXXXX`).
+   */
+  async createDog(input: CreateDogInput): Promise<{ ok: true; id: string } | { ok: false; message: string }> {
+    const providedId = input.id?.trim();
+    if (providedId && this.hasDog(providedId)) {
+      return { ok: false, message: `Ya existe un perro con id "${providedId}".` };
     }
+    const id = providedId || this.generateDogId();
 
     const dog: Dog = {
-      id: input.id.trim(),
+      id,
       nombre: input.nombre.trim(),
       raza: input.raza.trim(),
       edad: input.edad ?? 0,
@@ -143,7 +161,7 @@ export class DogRepositoryService {
       this.dogs.update((list) => list.filter((d) => d.id !== dog.id));
       return { ok: false, message: error.message };
     }
-    return { ok: true };
+    return { ok: true, id };
   }
 
   /** Insert-or-update a dog. */
