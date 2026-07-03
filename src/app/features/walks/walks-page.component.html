@@ -47,12 +47,18 @@
             </div>
             <span class="walk-item__time">
               {{ item.walk.fecha | date: 'EEE d MMM · HH:mm' }}
-              @if (item.walk.paseadoPor) {
-                · {{ formatUser(item.walk.paseadoPor) }}
-              }
+            </span>
+            <span class="walk-item__by">
+              <span class="walk-item__by-label">Paseado por</span>
+              <span class="walk-item__by-value">
+                {{ item.walk.paseadoPor ? formatUser(item.walk.paseadoPor) : 'Sin registrar' }}
+              </span>
             </span>
             @if (item.walk.notas) {
-              <span class="walk-item__note">"{{ item.walk.notas }}"</span>
+              <p class="walk-item__note">
+                <span class="walk-item__note-label">Comentario</span>
+                <span class="walk-item__note-text">{{ item.walk.notas }}</span>
+              </p>
             }
           </div>
         </li>

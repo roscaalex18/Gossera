@@ -12,6 +12,7 @@ interface WalkRow {
   dog_id: string;
   fecha: string;
   paseado_por: string | null;
+  paseado_por_email: string | null;
   notas: string | null;
 }
 
@@ -97,6 +98,7 @@ export class WalkRepositoryService {
         dog_id: dogId,
         fecha: now,
         paseado_por: userId,
+        paseado_por_email: userEmail ?? null,
         notas: notas?.trim() || null
       })
       .select('*')
@@ -133,7 +135,9 @@ function rowToWalk(row: WalkRow): Walk {
     id: row.id,
     dogId: row.dog_id,
     fecha: row.fecha,
-    paseadoPor: row.paseado_por ?? undefined,
+    // Prefer the denormalised email; fall back to the raw UUID only if the
+    // email is missing (e.g. very old rows before migration 006).
+    paseadoPor: row.paseado_por_email ?? row.paseado_por ?? undefined,
     notas: row.notas ?? undefined
   };
 }
