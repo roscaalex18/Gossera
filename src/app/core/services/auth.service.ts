@@ -24,6 +24,18 @@ export class AuthService {
   readonly user = computed<User | null>(() => this.session()?.user ?? null);
   readonly isAuthenticated = computed(() => this.session() !== null);
 
+  /**
+   * `true` cuando el usuario tiene el claim `role: 'admin'` en el JWT
+   * (`auth.users.raw_app_meta_data`). Este campo sólo lo puede editar un
+   * admin desde el dashboard de Supabase (o vía service_role), así que un
+   * usuario normal no se puede autopromover. Se necesita cerrar sesión y
+   * volver a entrar tras cambiar el claim para que el JWT lo refleje.
+   */
+  readonly isAdmin = computed<boolean>(() => {
+    const meta = this.user()?.app_metadata as Record<string, unknown> | undefined;
+    return meta?.['role'] === 'admin';
+  });
+
   /** Human-friendly label: hides the `@gmail.com` suffix for pretty display. */
   readonly displayName = computed(() => this.formatEmail(this.user()?.email));
 

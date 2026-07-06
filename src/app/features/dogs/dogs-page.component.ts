@@ -1,16 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { Dog, DogWalkPriority } from '../../core/models/dog.model';
+import { Dog, isWalkOverdue, walkUrgencyScore } from '../../core/models/dog.model';
 import { DogRepositoryService } from '../../core/services/dog-repository.service';
 import { DogCardComponent } from '../../shared/dog-card/dog-card.component';
 import { DogDetailSheetComponent } from './dog-detail-sheet.component';
 import { NewDogSheetComponent } from './new-dog-sheet.component';
-
-/** Peso numérico de la prioridad para ordenar (menor = antes). */
-const PRIORITY_WEIGHT: Record<DogWalkPriority, number> = {
-  alta: 0,
-  media: 1,
-  baja: 2
-};
 
 @Component({
   selector: 'app-dogs-page',
@@ -32,32 +25,39 @@ export class DogsPageComponent {
 
   /**
    * Lista visible: sólo perros activos, aplicando los filtros activos y
-   * ordenando destacados primero y luego por prioridad de paseo
-   * (alta → media → baja).
+   * ordenando destacados primero y luego por urgencia de paseo
+   * (días desde el último paseo / intervalo objetivo según prioridad).
+   * Cuanto mayor el score, más urgente → aparece antes.
    */
   readonly dogs = computed<Dog[]>(() => {
+    const now = Date.now();
     let list = this.dogRepository.dogs().filter((d) => d.estado === 'activo');
 
-    if (this.onlyPending()) list = list.filter((d) => d.necesitaPaseoHoy);
+    if (this.onlyPending()) list = list.filter((d) => isWalkOverdue(d, now));
     if (this.onlyHighPriority()) list = list.filter((d) => d.prioridadPaseo === 'alta');
     if (this.onlyPPP()) list = list.filter((d) => d.esPPP);
     if (this.onlyDestacados()) list = list.filter((d) => d.destacado);
 
     return [...list].sort((a, b) => {
       if (a.destacado !== b.destacado) return a.destacado ? -1 : 1;
-      return PRIORITY_WEIGHT[a.prioridadPaseo] - PRIORITY_WEIGHT[b.prioridadPaseo];
+      return walkUrgencyScore(b, now) - walkUrgencyScore(a, now);
     });
   });
 
   readonly totalDogs = computed(
     () => this.dogRepository.dogs().filter((d) => d.estado === 'activo').length
   );
-  readonly pendingDogs = computed(
-    () =>
-      this.dogRepository
-        .dogs()
-        .filter((d) => d.estado === 'activo' && d.necesitaPaseoHoy).length
-  );
+
+  /**
+   * Perros a los que ya les toca paseo (score ≥ 1 según su prioridad).
+   * Se recalcula si cambia `ultimoPaseo` o `prioridadPaseo` de cualquier perro.
+   */
+  readonly pendingDogs = computed(() => {
+    const now = Date.now();
+    return this.dogRepository
+      .dogs()
+      .filter((d) => d.estado === 'activo' && isWalkOverdue(d, now)).length;
+  });
 
   readonly hasActiveFilter = computed(
     () =>

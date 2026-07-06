@@ -1,8 +1,10 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { Walk } from '../models/walk.model';
-import { AuthService } from './auth.service';
 import { SUPABASE_CLIENT } from '../supabase/supabase.client';
+import { ActivityLogService } from './activity-log.service';
+import { AuthService } from './auth.service';
+import { DogRepositoryService } from './dog-repository.service';
 
 const CACHE_KEY = 'gossera.walks.cache.v1';
 const RECENT_LIMIT = 200;
@@ -24,6 +26,8 @@ interface WalkRow {
 export class WalkRepositoryService {
   private readonly supabase = inject(SUPABASE_CLIENT);
   private readonly auth = inject(AuthService);
+  private readonly activityLog = inject(ActivityLogService);
+  private readonly dogRepository = inject(DogRepositoryService);
 
   readonly walks = signal<Walk[]>(loadCache());
 
@@ -114,7 +118,134 @@ export class WalkRepositoryService {
     const saved = rowToWalk(data as WalkRow);
     this.walks.update((list) => [saved, ...list.filter((w) => w.id !== optimistic.id)]);
 
+    const dogName = this.dogRepository.dogs().find((d) => d.id === dogId)?.nombre;
+    this.activityLog.log({
+      action: 'walk.log',
+      entityType: 'walk',
+      entityId: saved.id,
+      summary: dogName ? `Paseó a ${dogName}` : `Registró paseo de ${dogId}`,
+      metadata: { dogId, notas: notas?.trim() || undefined }
+    });
+
     return { ok: true, walk: saved };
+  }
+
+  /**
+   * Borra un paseo mal registrado. Optimista con rollback si falla.
+   * Tras borrar, recalcula `dogs.ultimo_paseo` como `max(fecha)` de los
+   * paseos que le queden al perro (así el indicador de "necesita paseo"
+   * queda coherente).
+   */
+  async deleteWalk(id: string): Promise<{ ok: true } | { ok: false; message: string }> {
+    const previous = this.walks();
+    const target = previous.find((w) => w.id === id);
+
+    // Optimistic remove.
+    this.walks.update((list) => list.filter((w) => w.id !== id));
+
+    const { error } = await this.supabase.from('walks').delete().eq('id', id);
+    if (error) {
+      // Rollback.
+      this.walks.set(previous);
+      return { ok: false, message: error.message };
+    }
+
+    if (target) {
+      await this.recalculateDogLastWalk(target.dogId);
+
+      const dogName = this.dogRepository.dogs().find((d) => d.id === target.dogId)?.nombre;
+      this.activityLog.log({
+        action: 'walk.delete',
+        entityType: 'walk',
+        entityId: id,
+        summary: dogName
+          ? `Eliminó paseo de ${dogName}`
+          : `Eliminó paseo del perro ${target.dogId}`,
+        metadata: {
+          dogId: target.dogId,
+          fecha: target.fecha,
+          paseadoPor: target.paseadoPor
+        }
+      });
+    }
+
+    return { ok: true };
+  }
+
+  /**
+   * Edita un paseo existente. Se puede cambiar la fecha (para marcarlo en
+   * el pasado si se olvidó registrar en su momento) y las notas.
+   * Si la fecha cambia, recalcula `dogs.ultimo_paseo` para el perro.
+   */
+  async updateWalk(
+    id: string,
+    patch: { fecha?: string; notas?: string | null }
+  ): Promise<{ ok: true } | { ok: false; message: string }> {
+    const previous = this.walks();
+    const current = previous.find((w) => w.id === id);
+    if (!current) return { ok: false, message: 'El paseo ya no existe.' };
+
+    const next: Walk = {
+      ...current,
+      fecha: patch.fecha ?? current.fecha,
+      notas:
+        patch.notas === undefined
+          ? current.notas
+          : patch.notas ?? undefined
+    };
+
+    // Optimistic update.
+    this.walks.update((list) => list.map((w) => (w.id === id ? next : w)));
+
+    const row: Partial<WalkRow> = {};
+    if (patch.fecha !== undefined) row.fecha = patch.fecha;
+    if (patch.notas !== undefined) row.notas = patch.notas;
+
+    const { error } = await this.supabase.from('walks').update(row).eq('id', id);
+    if (error) {
+      // Rollback.
+      this.walks.set(previous);
+      return { ok: false, message: error.message };
+    }
+
+    // Recalcular ultimo_paseo del perro si cambió la fecha.
+    if (patch.fecha !== undefined && patch.fecha !== current.fecha) {
+      await this.recalculateDogLastWalk(current.dogId);
+    }
+
+    const dogName = this.dogRepository.dogs().find((d) => d.id === current.dogId)?.nombre;
+    this.activityLog.log({
+      action: 'walk.update',
+      entityType: 'walk',
+      entityId: id,
+      summary: dogName ? `Editó paseo de ${dogName}` : `Editó paseo ${id}`,
+      metadata: {
+        dogId: current.dogId,
+        oldFecha: current.fecha,
+        newFecha: next.fecha,
+        notasChanged: patch.notas !== undefined
+      }
+    });
+
+    return { ok: true };
+  }
+
+  /**
+   * Recalcula `dogs.ultimo_paseo` para un perro como el `max(fecha)` de los
+   * paseos que le quedan en el estado local. Se llama tras editar o borrar
+   * un paseo para que el indicador de "necesita paseo" sea consistente.
+   * Silencioso: sin log de actividad (es efecto colateral, no acción del
+   * usuario).
+   */
+  private async recalculateDogLastWalk(dogId: string): Promise<void> {
+    const dogWalks = this.walks().filter((w) => w.dogId === dogId);
+    if (dogWalks.length === 0) return; // Sin paseos, dejamos ultimo_paseo como está.
+
+    const maxFecha = dogWalks.reduce(
+      (max, w) => (w.fecha > max ? w.fecha : max),
+      dogWalks[0].fecha
+    );
+    await this.dogRepository.markWalked(dogId, new Date(maxFecha));
   }
 
   private subscribeToRealtime(): void {

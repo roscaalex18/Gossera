@@ -1,0 +1,255 @@
+:host {
+  display: block;
+}
+
+.activity-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+/* ============ Header ============ */
+.activity-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  color: #0f2e4d;
+}
+
+p {
+  margin: 0.35rem 0 0;
+  color: #35506f;
+}
+
+.activity-page__stats {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.activity-page__stats article {
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 12px;
+  padding: 0.55rem 0.9rem;
+  min-width: 110px;
+}
+
+.activity-page__stats span {
+  display: block;
+  font-size: 0.75rem;
+  color: #345;
+}
+
+.activity-page__stats strong {
+  font-size: 1.25rem;
+  color: #0f2e4d;
+}
+
+/* ============ Sections ============ */
+.activity-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.activity-page__section-title {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #0f2e4d;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.activity-page__empty {
+  padding: 1.8rem 1rem;
+  text-align: center;
+  color: #5b7290;
+  background: #ffffff;
+  border: 1px dashed #d6e1ef;
+  border-radius: 12px;
+  margin: 0;
+}
+
+/* ============ Top usuarios ============ */
+.user-stats {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.user-stats__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+}
+
+.user-stats__name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.user-stats__name strong {
+  color: #0f2e4d;
+  font-size: 0.95rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-stats__last {
+  color: #5b7290;
+  font-size: 0.75rem;
+}
+
+.user-stats__count {
+  background: #0f4c81;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  min-width: 34px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex: 0 0 auto;
+}
+
+/* ============ Feed ============ */
+.feed {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.feed__item {
+  display: flex;
+  gap: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  align-items: flex-start;
+}
+
+.feed__chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  border: 1px solid transparent;
+}
+
+.feed__chip--create {
+  background: #e6f5ec;
+  color: #0d6b3a;
+  border-color: #b7dfc7;
+}
+
+.feed__chip--update {
+  background: #e6f0fb;
+  color: #143a62;
+  border-color: #b5cbea;
+}
+
+.feed__chip--delete {
+  background: #fce8e6;
+  color: #b3261e;
+  border-color: #f3c0bc;
+}
+
+.feed__chip--walk {
+  background: #e3f4f4;
+  color: #0c5959;
+  border-color: #a5d9d9;
+}
+
+.feed__chip--paw {
+  background: #fdf1c2;
+  color: #8f6a10;
+  border-color: #e0d3a3;
+}
+
+.feed__chip--auth {
+  background: #ede4fb;
+  color: #4a1d96;
+  border-color: #cebff2;
+}
+
+.feed__chip--other {
+  background: #f4f5f7;
+  color: #4a5568;
+  border-color: #cbd2da;
+}
+
+.feed__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.feed__summary {
+  margin: 0;
+  color: #0f2e4d;
+  font-size: 0.92rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.feed__meta {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: baseline;
+  color: #5b7290;
+  font-size: 0.78rem;
+}
+
+.feed__user {
+  color: #0f2e4d;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.feed__dot {
+  color: #b3c1d1;
+}
+
+@media (max-width: 720px) {
+  .activity-page__stats {
+    width: 100%;
+
+    article {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  }
+}

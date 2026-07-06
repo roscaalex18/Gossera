@@ -18,7 +18,7 @@
   </header>
 
   <div class="dogs-page__filters" role="group" aria-label="Filtrar perros">
-    <button
+    <!-- <button
       type="button"
       class="filter-btn"
       [class.filter-btn--active]="onlyPending()"
@@ -36,7 +36,7 @@
       (click)="toggleOnlyHighPriority()"
     >
       Prioridad alta
-    </button>
+    </button> -->
 
     <button
       type="button"
@@ -62,7 +62,6 @@
         <ellipse cx="18" cy="9" rx="1.7" ry="2.4" />
         <path d="M12 10.5c-3 0-5.5 2.3-5.5 5.2 0 2.4 2 3.8 5.5 3.8s5.5-1.4 5.5-3.8c0-2.9-2.5-5.2-5.5-5.2Z" />
       </svg>
-      Destacados
     </button>
 
     @if (hasActiveFilter()) {

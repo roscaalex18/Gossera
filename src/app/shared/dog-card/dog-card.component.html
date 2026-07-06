@@ -140,8 +140,8 @@
       <span>
         Ultimo paseo: {{ dog().ultimoPaseo | date: 'dd/MM HH:mm' }}
       </span>
-      <span [class.pending]="dog().necesitaPaseoHoy">
-        {{ dog().necesitaPaseoHoy ? 'Necesita paseo hoy' : 'Paseo al dia' }}
+      <span [class.pending]="needsWalk()">
+        {{ needsWalk() ? 'Toca paseo' : 'Paseo al día' }}
       </span>
       @if (dog().fotos.length > 1) {
         <span class="dog-card__photos-count">{{ dog().fotos.length }} fotos</span>

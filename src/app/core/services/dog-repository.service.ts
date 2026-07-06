@@ -3,6 +3,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 import { Dog, DogEstado } from '../models/dog.model';
 import { SUPABASE_CLIENT } from '../supabase/supabase.client';
 import { DogRow, dogToRow, rowToDog } from '../supabase/supabase.mappers';
+import { ActivityLogService } from './activity-log.service';
 
 const CACHE_KEY = 'gossera.dogs.cache.v1';
 const PHOTOS_BUCKET = 'dog-photos';
@@ -63,6 +64,7 @@ export type UpdateDogPatch = Partial<
 @Injectable({ providedIn: 'root' })
 export class DogRepositoryService {
   private readonly supabase = inject(SUPABASE_CLIENT);
+  private readonly activityLog = inject(ActivityLogService);
 
   readonly dogs = signal<Dog[]>(loadCache());
   readonly status = signal<LoadStatus>('idle');
@@ -165,6 +167,15 @@ export class DogRepositoryService {
       this.dogs.update((list) => list.filter((d) => d.id !== dog.id));
       return { ok: false, message: error.message };
     }
+
+    this.activityLog.log({
+      action: 'dog.create',
+      entityType: 'dog',
+      entityId: id,
+      summary: `Añadió a ${dog.nombre}`,
+      metadata: { codigo: dog.codigo, raza: dog.raza }
+    });
+
     return { ok: true, id };
   }
 
@@ -226,19 +237,50 @@ export class DogRepositoryService {
       this.dogs.set(previous);
       return { ok: false, message: error.message };
     }
+
+    // Resumen humano: si cambió el estado, lo destacamos; si no, genérico.
+    const fields = Object.keys(applied);
+    let summary = `Editó ficha de ${current.nombre}`;
+    if (applied.estado && applied.estado !== current.estado) {
+      const label: Record<DogEstado, string> = {
+        activo: 'activo',
+        adoptado: 'adoptado',
+        fallecido: 'fallecido',
+        trasladado: 'trasladado'
+      };
+      summary = `Marcó a ${current.nombre} como ${label[applied.estado]}`;
+    }
+    this.activityLog.log({
+      action: 'dog.update',
+      entityType: 'dog',
+      entityId: id,
+      summary,
+      metadata: { fields }
+    });
+
     return { ok: true };
   }
 
   /** Delete a dog by id. */
   async deleteDog(id: string): Promise<void> {
     const previous = this.dogs();
+    const target = previous.find((d) => d.id === id);
     this.dogs.update((list) => list.filter((d) => d.id !== id));
 
     const { error } = await this.supabase.from('dogs').delete().eq('id', id);
     if (error) {
       this.error.set(error.message);
       this.dogs.set(previous);
+      return;
     }
+
+    this.activityLog.log({
+      action: 'dog.delete',
+      entityType: 'dog',
+      entityId: id,
+      summary: target ? `Eliminó a ${target.nombre}` : `Eliminó perro ${id}`,
+      metadata: target ? { codigo: target.codigo, raza: target.raza } : undefined
+    });
   }
 
   /** Mark a dog as walked (updates `ultimoPaseo` and clears the pending flag). */
@@ -285,7 +327,18 @@ export class DogRepositoryService {
     if (error) {
       this.error.set(error.message);
       this.dogs.set(previous);
+      return;
     }
+
+    this.activityLog.log({
+      action: 'dog.destacar',
+      entityType: 'dog',
+      entityId: id,
+      summary: next
+        ? `Marcó a ${current.nombre} como prioridad máxima`
+        : `Quitó prioridad máxima a ${current.nombre}`,
+      metadata: { value: next }
+    });
   }
 
   // ==========================================================================

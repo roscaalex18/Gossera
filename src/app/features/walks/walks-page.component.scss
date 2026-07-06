@@ -184,3 +184,190 @@ p {
   font-size: 0.88rem;
   overflow-wrap: anywhere;
 }
+
+/* ==================== Eliminar paseo ==================== */
+.walk-item {
+  position: relative;
+}
+
+.walk-item__row-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-self: flex-start;
+  flex: 0 0 auto;
+}
+
+.walk-item__edit {
+  border: 1px solid #cfd9e8;
+  background: #ffffff;
+  color: #0f4c81;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.walk-item__edit:hover {
+  background: #0f4c81;
+  color: #ffffff;
+}
+
+.walk-item__edit:focus-visible {
+  outline: 2px solid #0f4c81;
+  outline-offset: 2px;
+}
+
+.walk-item__delete {
+  border: 1px solid #f3c0bc;
+  background: #ffffff;
+  color: #b3261e;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.walk-item__delete:hover {
+  background: #b3261e;
+  color: #ffffff;
+}
+
+.walk-item__delete:focus-visible {
+  outline: 2px solid #b3261e;
+  outline-offset: 2px;
+}
+
+.walk-item__confirm {
+  margin-top: 0.4rem;
+  padding: 0.55rem 0.65rem;
+  background: #fce8e6;
+  border: 1px solid #f3c0bc;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.walk-item__confirm-text {
+  color: #7a1414;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.walk-item__confirm-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.walk-item__confirm-error {
+  margin: 0;
+  color: #7a1414;
+  font-size: 0.8rem;
+}
+
+/* ==================== Editar paseo ==================== */
+.walk-item__edit-form {
+  margin-top: 0.35rem;
+  padding: 0.6rem 0.7rem;
+  background: #f4f8fd;
+  border: 1px solid #cfdcee;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.walk-item__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.78rem;
+  color: #0f2e4d;
+  font-weight: 700;
+}
+
+.walk-item__field small {
+  color: #5b7290;
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
+
+.walk-item__input,
+.walk-item__textarea {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #cfd9e8;
+  border-radius: 8px;
+  font: inherit;
+  min-height: 40px;
+  background: #ffffff;
+  color: #0f2e4d;
+  box-sizing: border-box;
+}
+
+.walk-item__textarea {
+  resize: vertical;
+  min-height: 56px;
+}
+
+.walk-item__input:focus,
+.walk-item__textarea:focus {
+  outline: 2px solid #0f4c81;
+  outline-offset: 1px;
+  border-color: #0f4c81;
+}
+
+.walk-item__edit-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.btn-mini {
+  flex: 1;
+  border: 1px solid #d6e1ef;
+  background: #ffffff;
+  color: #0f2e4d;
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 36px;
+  font-family: inherit;
+}
+
+.btn-mini:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-mini--danger {
+  background: #b3261e;
+  color: #ffffff;
+  border-color: #7a1414;
+}
+
+.btn-mini--danger:hover:not(:disabled) {
+  background: #7a1414;
+}
+
+.btn-mini--primary {
+  background: #0f4c81;
+  color: #ffffff;
+  border-color: #0f2e4d;
+}
+
+.btn-mini--primary:hover:not(:disabled) {
+  background: #0f2e4d;
+}

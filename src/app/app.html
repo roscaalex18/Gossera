@@ -13,6 +13,9 @@
         <a routerLink="/perros" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Perros</a>
         <a routerLink="/mapa" routerLinkActive="is-active">Mapa</a>
         <a routerLink="/paseos" routerLinkActive="is-active">Paseos</a>
+        @if (auth.isAdmin()) {
+          <a routerLink="/actividad" routerLinkActive="is-active">Actividad</a>
+        }
       </nav>
 
       <div class="account">

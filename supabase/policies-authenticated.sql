@@ -13,6 +13,8 @@
 drop policy if exists "dogs_all_anon" on public.dogs;
 drop policy if exists "assignments_all_anon" on public.shelter_assignments;
 drop policy if exists "walks_all_anon" on public.walks;
+drop policy if exists "activity_log_select_anon" on public.activity_log;
+drop policy if exists "activity_log_insert_anon" on public.activity_log;
 
 drop policy if exists "dogs_all_auth" on public.dogs;
 create policy "dogs_all_auth"
@@ -36,4 +38,25 @@ create policy "walks_all_auth"
   for all
   to authenticated
   using (true)
+  with check (true);
+
+-- activity_log:
+--   * SELECT — sólo admin (usuarios con role 'admin' en su JWT).
+--   * INSERT — cualquier autenticado (para que puedan loggear sus acciones).
+--   * UPDATE / DELETE — sin policies => nadie puede modificar el log.
+drop policy if exists "activity_log_select_auth" on public.activity_log;
+drop policy if exists "activity_log_select_admin" on public.activity_log;
+create policy "activity_log_select_admin"
+  on public.activity_log
+  for select
+  to authenticated
+  using (
+    coalesce((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', false)
+  );
+
+drop policy if exists "activity_log_insert_auth" on public.activity_log;
+create policy "activity_log_insert_auth"
+  on public.activity_log
+  for insert
+  to authenticated
   with check (true);

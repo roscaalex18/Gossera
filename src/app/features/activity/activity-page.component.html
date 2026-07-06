@@ -1,0 +1,85 @@
+<section class="activity-page">
+  <header class="activity-page__header">
+    <div>
+      <h1>Actividad</h1>
+      <p>
+        Últimas {{ entries().length }} acciones registradas en la app. Sirve
+        para ver quién está usando la web y qué está haciendo.
+      </p>
+    </div>
+
+    <div class="activity-page__stats" aria-label="Resumen de actividad">
+      <article>
+        <span>Hoy</span>
+        <strong>{{ countToday() }}</strong>
+      </article>
+      <article>
+        <span>Últimos 7 días</span>
+        <strong>{{ countLast7Days() }}</strong>
+      </article>
+      <article>
+        <span>Usuarios activos (7d)</span>
+        <strong>{{ activeUsersCount() }}</strong>
+      </article>
+    </div>
+  </header>
+
+  <!-- ==================== Top usuarios ==================== -->
+  <section class="activity-page__section" aria-label="Top usuarios">
+    <h2 class="activity-page__section-title">Top usuarios (últimos 7 días)</h2>
+
+    @if (topUsers().length === 0) {
+      <p class="activity-page__empty">
+        Todavía no hay actividad registrada en los últimos 7 días.
+      </p>
+    } @else {
+      <ul class="user-stats">
+        @for (u of topUsers(); track u.email) {
+          <li class="user-stats__item">
+            <div class="user-stats__name">
+              <strong>{{ u.displayName }}</strong>
+              <span class="user-stats__last">
+                Última acción: {{ u.lastAt | date: 'dd/MM HH:mm' }}
+              </span>
+            </div>
+            <span class="user-stats__count" aria-label="Acciones totales">
+              {{ u.count }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <!-- ==================== Feed ==================== -->
+  <section class="activity-page__section" aria-label="Historial de acciones">
+    <h2 class="activity-page__section-title">Historial</h2>
+
+    @if (entries().length === 0) {
+      <p class="activity-page__empty">Aún no hay ninguna acción registrada.</p>
+    } @else {
+      <ul class="feed">
+        @for (e of entries(); track trackByEntryId($index, e)) {
+          <li class="feed__item">
+            <span
+              class="feed__chip"
+              [class]="'feed__chip--' + actionMeta(e.action).variant"
+            >
+              {{ actionMeta(e.action).label }}
+            </span>
+            <div class="feed__body">
+              <p class="feed__summary">{{ e.summary ?? e.action }}</p>
+              <div class="feed__meta">
+                <span class="feed__user">{{ formatUser(e.userEmail) }}</span>
+                <span class="feed__dot" aria-hidden="true">·</span>
+                <span class="feed__time">
+                  {{ e.createdAt | date: 'EEE d MMM · HH:mm' }}
+                </span>
+              </div>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</section>

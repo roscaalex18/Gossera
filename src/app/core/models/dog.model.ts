@@ -2,6 +2,45 @@ export type DogWalkPriority = 'alta' | 'media' | 'baja';
 
 export type DogEstado = 'activo' | 'adoptado' | 'fallecido' | 'trasladado';
 
+/**
+ * Intervalo objetivo entre paseos según la prioridad del perro. Si pasan
+ * más días de este intervalo desde el último paseo, el perro se considera
+ * "pendiente" y sube en el orden del listado.
+ *
+ * - alta:  cada 4 días (ideal 2 paseos/semana)
+ * - media: cada 7 días (1 paseo/semana)
+ * - baja:  cada 14 días (1 paseo cada 2 semanas)
+ */
+export const WALK_INTERVAL_DAYS: Record<DogWalkPriority, number> = {
+  alta: 4,
+  media: 7,
+  baja: 14
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Días transcurridos desde el último paseo (puede ser fracción). */
+export function daysSinceLastWalk(dog: Dog, now: number = Date.now()): number {
+  const last = new Date(dog.ultimoPaseo).getTime();
+  return (now - last) / DAY_MS;
+}
+
+/**
+ * Ratio "días transcurridos / intervalo objetivo".
+ *  - < 1  → el perro está al día.
+ *  - = 1  → justo toca hoy.
+ *  - > 1  → retraso (perro pendiente). Cuanto mayor, más urgente.
+ * Se usa como clave de ordenación en el listado principal.
+ */
+export function walkUrgencyScore(dog: Dog, now: number = Date.now()): number {
+  return daysSinceLastWalk(dog, now) / WALK_INTERVAL_DAYS[dog.prioridadPaseo];
+}
+
+/** `true` si al perro ya le tocaba paseo (o va con retraso). */
+export function isWalkOverdue(dog: Dog, now: number = Date.now()): boolean {
+  return walkUrgencyScore(dog, now) >= 1;
+}
+
 export interface Dog {
   /** Internal primary key (auto-generated, never shown to the user). */
   id: string;

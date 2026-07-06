@@ -45,22 +45,113 @@
                 <span class="walk-item__id">· {{ codigo }}</span>
               }
             </div>
-            <span class="walk-item__time">
-              {{ item.walk.fecha | date: 'EEE d MMM · HH:mm' }}
-            </span>
-            <span class="walk-item__by">
-              <span class="walk-item__by-label">Paseado por</span>
-              <span class="walk-item__by-value">
-                {{ item.walk.paseadoPor ? formatUser(item.walk.paseadoPor) : 'Sin registrar' }}
+
+            @if (editingId() === item.walk.id) {
+              <!-- ===== Formulario de edición inline ===== -->
+              <div class="walk-item__edit-form" role="form" aria-label="Editar paseo">
+                <label class="walk-item__field">
+                  <span>Fecha y hora</span>
+                  <input
+                    type="datetime-local"
+                    class="walk-item__input"
+                    [ngModel]="editFecha()"
+                    (ngModelChange)="editFecha.set($event)"
+                    [disabled]="savingEdit()"
+                  />
+                </label>
+                <label class="walk-item__field">
+                  <span>Nota <small>(opcional)</small></span>
+                  <textarea
+                    class="walk-item__textarea"
+                    rows="2"
+                    [ngModel]="editNotas()"
+                    (ngModelChange)="editNotas.set($event)"
+                    [disabled]="savingEdit()"
+                  ></textarea>
+                </label>
+                @if (editError()) {
+                  <p class="walk-item__confirm-error" role="alert">{{ editError() }}</p>
+                }
+                <div class="walk-item__edit-actions">
+                  <button
+                    type="button"
+                    class="btn-mini"
+                    [disabled]="savingEdit()"
+                    (click)="cancelEdit()"
+                  >Cancelar</button>
+                  <button
+                    type="button"
+                    class="btn-mini btn-mini--primary"
+                    [disabled]="savingEdit()"
+                    (click)="saveEdit(item.walk)"
+                  >
+                    @if (savingEdit()) { Guardando… } @else { Guardar }
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <!-- ===== Vista de lectura ===== -->
+              <span class="walk-item__time">
+                {{ item.walk.fecha | date: 'EEE d MMM · HH:mm' }}
               </span>
-            </span>
-            @if (item.walk.notas) {
-              <p class="walk-item__note">
-                <span class="walk-item__note-label">Comentario</span>
-                <span class="walk-item__note-text">{{ item.walk.notas }}</span>
-              </p>
+              <span class="walk-item__by">
+                <span class="walk-item__by-label">Paseado por</span>
+                <span class="walk-item__by-value">
+                  {{ item.walk.paseadoPor ? formatUser(item.walk.paseadoPor) : 'Sin registrar' }}
+                </span>
+              </span>
+              @if (item.walk.notas) {
+                <p class="walk-item__note">
+                  <span class="walk-item__note-label">Comentario</span>
+                  <span class="walk-item__note-text">{{ item.walk.notas }}</span>
+                </p>
+              }
+            }
+
+            @if (deleteConfirmId() === item.walk.id) {
+              <div class="walk-item__confirm" role="alertdialog" aria-label="Confirmar eliminación de paseo">
+                <span class="walk-item__confirm-text">¿Eliminar este paseo?</span>
+                <div class="walk-item__confirm-actions">
+                  <button
+                    type="button"
+                    class="btn-mini"
+                    [disabled]="deletingId() === item.walk.id"
+                    (click)="cancelDelete()"
+                  >Cancelar</button>
+                  <button
+                    type="button"
+                    class="btn-mini btn-mini--danger"
+                    [disabled]="deletingId() === item.walk.id"
+                    (click)="confirmDelete(item.walk.id)"
+                  >
+                    @if (deletingId() === item.walk.id) { Eliminando… } @else { Sí, eliminar }
+                  </button>
+                </div>
+                @if (deleteError()) {
+                  <p class="walk-item__confirm-error" role="alert">{{ deleteError() }}</p>
+                }
+              </div>
             }
           </div>
+
+          @if (deleteConfirmId() !== item.walk.id && editingId() !== item.walk.id) {
+            <div class="walk-item__row-actions">
+              <button
+                type="button"
+                class="walk-item__edit"
+                (click)="askEdit(item.walk)"
+                [attr.aria-label]="'Editar paseo de ' + (item.dog?.nombre ?? 'perro eliminado')"
+                title="Editar paseo"
+              >✎</button>
+              <button
+                type="button"
+                class="walk-item__delete"
+                (click)="askDelete(item.walk.id)"
+                [attr.aria-label]="'Eliminar paseo de ' + (item.dog?.nombre ?? 'perro eliminado')"
+                title="Eliminar paseo"
+              >×</button>
+            </div>
+          }
         </li>
       }
     </ul>

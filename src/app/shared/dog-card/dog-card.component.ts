@@ -1,6 +1,6 @@
 import { DatePipe, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { Dog, DogWalkPriority } from '../../core/models/dog.model';
+import { Dog, DogWalkPriority, isWalkOverdue } from '../../core/models/dog.model';
 import { DogRepositoryService } from '../../core/services/dog-repository.service';
 import { ShelterMapService } from '../../core/services/shelter-map.service';
 
@@ -36,6 +36,12 @@ export class DogCardComponent {
     const d = this.dog();
     return d.esPPP || d.bozalObligatorio || d.cuidadoMachos || d.cuidadoHembras;
   });
+
+  /**
+   * `true` si al perro ya le toca paseo según su prioridad (score ≥ 1).
+   * Se recalcula automáticamente al cambiar `ultimoPaseo` o `prioridadPaseo`.
+   */
+  readonly needsWalk = computed<boolean>(() => isWalkOverdue(this.dog()));
 
   priorityClass(priority: DogWalkPriority): string {
     return `priority-${priority}`;
