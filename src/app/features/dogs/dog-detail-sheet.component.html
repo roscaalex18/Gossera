@@ -10,6 +10,24 @@
       </p>
     </div>
     <div class="sheet__header-actions">
+      <button
+        type="button"
+        class="paw-btn"
+        [class.paw-btn--on]="dog()?.destacado"
+        [attr.aria-label]="dog()?.destacado ? 'Quitar prioridad máxima' : 'Marcar como prioridad máxima'"
+        [attr.aria-pressed]="dog()?.destacado ?? false"
+        [title]="dog()?.destacado ? 'Quitar prioridad máxima' : 'Marcar como prioridad máxima'"
+        [disabled]="!dog()"
+        (click)="toggleDestacado()"
+      >
+        <svg class="paw-btn__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+          <ellipse cx="6" cy="9" rx="1.7" ry="2.4" />
+          <ellipse cx="9.7" cy="6" rx="1.7" ry="2.4" />
+          <ellipse cx="14.3" cy="6" rx="1.7" ry="2.4" />
+          <ellipse cx="18" cy="9" rx="1.7" ry="2.4" />
+          <path d="M12 10.5c-3 0-5.5 2.3-5.5 5.2 0 2.4 2 3.8 5.5 3.8s5.5-1.4 5.5-3.8c0-2.9-2.5-5.2-5.5-5.2Z" />
+        </svg>
+      </button>
       <button type="button" class="btn-edit" (click)="openEdit()" aria-label="Editar ficha">
         Editar ficha
       </button>

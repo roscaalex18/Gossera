@@ -1,14 +1,51 @@
 <article class="dog-card" [class.dog-card--compact]="compact()">
-  @if (dog().fotos[0]; as cover) {
-    <img [src]="cover" [alt]="'Foto de ' + dog().nombre" loading="lazy" />
-  } @else {
-    <div class="dog-card__no-photo" aria-hidden="true">Sin foto</div>
-  }
+  <div class="dog-card__media">
+    @if (dog().fotos[0]; as cover) {
+      <img [src]="cover" [alt]="'Foto de ' + dog().nombre" loading="lazy" />
+    } @else {
+      <div class="dog-card__no-photo" aria-hidden="true">Sin foto</div>
+    }
+
+    @if (showStarToggle()) {
+      <button
+        type="button"
+        class="paw-btn"
+        [class.paw-btn--on]="dog().destacado"
+        [attr.aria-label]="dog().destacado ? 'Quitar prioridad máxima' : 'Marcar como prioridad máxima'"
+        [attr.aria-pressed]="dog().destacado"
+        [title]="dog().destacado ? 'Quitar prioridad máxima' : 'Marcar como prioridad máxima'"
+        (click)="toggleDestacado($event)"
+      >
+        <svg class="paw-btn__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+          <ellipse cx="6" cy="9" rx="1.7" ry="2.4" />
+          <ellipse cx="9.7" cy="6" rx="1.7" ry="2.4" />
+          <ellipse cx="14.3" cy="6" rx="1.7" ry="2.4" />
+          <ellipse cx="18" cy="9" rx="1.7" ry="2.4" />
+          <path d="M12 10.5c-3 0-5.5 2.3-5.5 5.2 0 2.4 2 3.8 5.5 3.8s5.5-1.4 5.5-3.8c0-2.9-2.5-5.2-5.5-5.2Z" />
+        </svg>
+      </button>
+    }
+  </div>
 
   <div class="dog-card__content">
     <div class="dog-card__title-row">
       <h2>{{ dog().nombre }}</h2>
       <div class="dog-card__badges">
+        @if (dog().destacado && !showStarToggle()) {
+          <span
+            class="paw-pill"
+            title="Prioridad máxima"
+            aria-label="Prioridad máxima"
+          >
+            <svg class="paw-pill__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+              <ellipse cx="6" cy="9" rx="1.7" ry="2.4" />
+              <ellipse cx="9.7" cy="6" rx="1.7" ry="2.4" />
+              <ellipse cx="14.3" cy="6" rx="1.7" ry="2.4" />
+              <ellipse cx="18" cy="9" rx="1.7" ry="2.4" />
+              <path d="M12 10.5c-3 0-5.5 2.3-5.5 5.2 0 2.4 2 3.8 5.5 3.8s5.5-1.4 5.5-3.8c0-2.9-2.5-5.2-5.5-5.2Z" />
+            </svg>
+          </span>
+        }
         @if (dog().esPPP) {
           <span
             class="ppp-pill"

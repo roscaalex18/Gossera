@@ -17,24 +17,63 @@
     </div>
   </header>
 
-  <div class="dogs-page__filters" role="group" aria-label="Filtrar por paseo">
+  <div class="dogs-page__filters" role="group" aria-label="Filtrar perros">
     <button
       type="button"
       class="filter-btn"
-      [class.filter-btn--active]="filterMode() === 'todos'"
-      (click)="setFilter('todos')"
+      [class.filter-btn--active]="onlyPending()"
+      [attr.aria-pressed]="onlyPending()"
+      (click)="toggleOnlyPending()"
     >
-      Todos
+      Pendientes hoy
     </button>
 
     <button
       type="button"
       class="filter-btn"
-      [class.filter-btn--active]="filterMode() === 'soloPendientes'"
-      (click)="setFilter('soloPendientes')"
+      [class.filter-btn--active]="onlyHighPriority()"
+      [attr.aria-pressed]="onlyHighPriority()"
+      (click)="toggleOnlyHighPriority()"
     >
-      Solo pendientes
+      Prioridad alta
     </button>
+
+    <button
+      type="button"
+      class="filter-btn filter-btn--ppp"
+      [class.filter-btn--active]="onlyPPP()"
+      [attr.aria-pressed]="onlyPPP()"
+      (click)="toggleOnlyPPP()"
+    >
+      PPP
+    </button>
+
+    <button
+      type="button"
+      class="filter-btn filter-btn--paw"
+      [class.filter-btn--active]="onlyDestacados()"
+      [attr.aria-pressed]="onlyDestacados()"
+      (click)="toggleOnlyDestacados()"
+    >
+      <svg class="filter-btn__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+        <ellipse cx="6" cy="9" rx="1.7" ry="2.4" />
+        <ellipse cx="9.7" cy="6" rx="1.7" ry="2.4" />
+        <ellipse cx="14.3" cy="6" rx="1.7" ry="2.4" />
+        <ellipse cx="18" cy="9" rx="1.7" ry="2.4" />
+        <path d="M12 10.5c-3 0-5.5 2.3-5.5 5.2 0 2.4 2 3.8 5.5 3.8s5.5-1.4 5.5-3.8c0-2.9-2.5-5.2-5.5-5.2Z" />
+      </svg>
+      Destacados
+    </button>
+
+    @if (hasActiveFilter()) {
+      <button
+        type="button"
+        class="filter-btn filter-btn--clear"
+        (click)="clearFilters()"
+      >
+        Limpiar
+      </button>
+    }
   </div>
 
   @if (dogs().length === 0) {
@@ -42,14 +81,17 @@
   } @else {
     <div class="dogs-grid">
       @for (dog of dogs(); track trackByDogId($index, dog)) {
-        <button
-          type="button"
+        <div
           class="dog-card-btn"
+          role="button"
+          tabindex="0"
           (click)="openDetail(dog.id)"
+          (keydown.enter)="openDetail(dog.id)"
+          (keydown.space)="$event.preventDefault(); openDetail(dog.id)"
           [attr.aria-label]="'Abrir detalle de ' + dog.nombre"
         >
-          <app-dog-card [dog]="dog" />
-        </button>
+          <app-dog-card [dog]="dog" [showStarToggle]="true" />
+        </div>
       }
     </div>
   }

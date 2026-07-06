@@ -34,4 +34,10 @@ export interface Dog {
   cuidadoMachos: boolean;
   /** Precaución al cruzarse con otras hembras. */
   cuidadoHembras: boolean;
+  /**
+   * Marca de "prioridad máxima" (destacar / fijar arriba). Ortogonal a
+   * `prioridadPaseo`: cuando está activo, el perro aparece siempre al
+   * principio del listado sin importar su prioridad habitual.
+   */
+  destacado: boolean;
 }

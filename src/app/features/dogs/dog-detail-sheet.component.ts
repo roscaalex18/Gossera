@@ -100,6 +100,15 @@ export class DogDetailSheetComponent {
     this.editing.set(false);
   }
 
+  // === Prioridad máxima (destacar) ===
+
+  /** Alterna el flag `destacado` sin pasar por el modal de edición. */
+  async toggleDestacado(): Promise<void> {
+    const dog = this.dog();
+    if (!dog) return;
+    await this.dogRepository.toggleDestacado(dog.id);
+  }
+
   // === Sheet controls ===
 
   onBackdropClick(): void {

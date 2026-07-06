@@ -1,6 +1,7 @@
 import { DatePipe, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { Dog, DogWalkPriority } from '../../core/models/dog.model';
+import { DogRepositoryService } from '../../core/services/dog-repository.service';
 import { ShelterMapService } from '../../core/services/shelter-map.service';
 
 @Component({
@@ -12,10 +13,16 @@ import { ShelterMapService } from '../../core/services/shelter-map.service';
 })
 export class DogCardComponent {
   private readonly shelterMap = inject(ShelterMapService);
+  private readonly dogRepository = inject(DogRepositoryService);
 
   readonly dog = input.required<Dog>();
   /** When true renders a more compact version (used inside the map bottom sheet). */
   readonly compact = input<boolean>(false);
+  /**
+   * When true, shows a floating ★ button in the top-right of the photo that
+   * toggles the "destacado" (prioridad máxima) flag directly from the list.
+   */
+  readonly showStarToggle = input<boolean>(false);
 
   /** Nombre del box/zona en el que está el perro (o `null` si no tiene asignación). */
   readonly boxName = computed<string | null>(() => {
@@ -32,5 +39,15 @@ export class DogCardComponent {
 
   priorityClass(priority: DogWalkPriority): string {
     return `priority-${priority}`;
+  }
+
+  /**
+   * Alterna la flag `destacado` del perro. Se llama desde el botón ★
+   * flotante y necesita frenar la propagación para no abrir el detalle.
+   */
+  toggleDestacado(event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    void this.dogRepository.toggleDestacado(this.dog().id);
   }
 }

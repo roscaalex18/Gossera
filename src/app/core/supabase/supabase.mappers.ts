@@ -25,6 +25,7 @@ export interface DogRow {
   bozal_obligatorio: boolean | null;
   cuidado_machos: boolean | null;
   cuidado_hembras: boolean | null;
+  destacado: boolean | null;
 }
 
 export function rowToDog(row: DogRow): Dog {
@@ -47,7 +48,8 @@ export function rowToDog(row: DogRow): Dog {
     esPPP: row.es_ppp ?? false,
     bozalObligatorio: row.bozal_obligatorio ?? false,
     cuidadoMachos: row.cuidado_machos ?? false,
-    cuidadoHembras: row.cuidado_hembras ?? false
+    cuidadoHembras: row.cuidado_hembras ?? false,
+    destacado: row.destacado ?? false
   };
 }
 
@@ -71,6 +73,7 @@ export function dogToRow(dog: Dog): DogRow {
     es_ppp: dog.esPPP,
     bozal_obligatorio: dog.bozalObligatorio,
     cuidado_machos: dog.cuidadoMachos,
-    cuidado_hembras: dog.cuidadoHembras
+    cuidado_hembras: dog.cuidadoHembras,
+    destacado: dog.destacado
   };
 }

@@ -12,7 +12,12 @@
   flex-direction: column;
 }
 
-.dog-card img {
+.dog-card__media {
+  position: relative;
+  width: 100%;
+}
+
+.dog-card__media img {
   width: 100%;
   aspect-ratio: 4 / 3;
   height: auto;
@@ -32,6 +37,59 @@
   color: #7a94b1;
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+/* Botón flotante 🐾 (destacado / prioridad máxima). Vive encima de la foto,
+   arriba a la derecha. Sólo aparece cuando `showStarToggle` está activo. */
+.paw-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 46, 77, 0.15);
+  background: rgba(255, 255, 255, 0.92);
+  color: #5b7290;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(15, 46, 77, 0.18);
+  transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease;
+  padding: 0;
+  font-family: inherit;
+}
+
+.paw-btn__icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  display: block;
+}
+
+.paw-btn:hover {
+  background: #ffffff;
+  transform: scale(1.05);
+}
+
+.paw-btn:active {
+  transform: scale(0.94);
+}
+
+.paw-btn:focus-visible {
+  outline: 2px solid #0f4c81;
+  outline-offset: 2px;
+}
+
+.paw-btn--on {
+  background: #b8891b;
+  color: #fff9db;
+  border-color: #8f6a10;
+  box-shadow: 0 6px 16px rgba(184, 137, 27, 0.5);
+}
+
+.paw-btn--on:hover {
+  background: #a4791a;
 }
 
 .dog-card__photos-count {
@@ -80,6 +138,25 @@
   color: #ffffff;
   border: 1px solid #5a0e0e;
   text-transform: uppercase;
+}
+
+.paw-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  line-height: 1;
+  padding: 0.28rem 0.5rem;
+  white-space: nowrap;
+  background: #b8891b;
+  color: #fff9db;
+  border: 1px solid #8f6a10;
+}
+
+.paw-pill__icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  display: block;
 }
 
 .dog-card__flags {
@@ -200,13 +277,22 @@
   align-items: stretch;
   border-radius: 12px;
 
-  img {
+  .dog-card__media {
     width: 88px;
-    height: auto;
     min-height: 100%;
     flex: 0 0 88px;
+  }
+
+  .dog-card__media img {
+    width: 100%;
+    height: 100%;
     aspect-ratio: auto;
     object-position: center 25%;
+  }
+
+  .dog-card__no-photo {
+    height: 100%;
+    aspect-ratio: auto;
   }
 
   .dog-card__content {
@@ -239,9 +325,15 @@
   }
 
   .ppp-pill,
-  .priority-pill {
+  .priority-pill,
+  .paw-pill {
     font-size: 0.66rem;
     padding: 0.15rem 0.45rem;
+  }
+
+  .paw-pill__icon {
+    width: 0.75rem;
+    height: 0.75rem;
   }
 
   .flag {

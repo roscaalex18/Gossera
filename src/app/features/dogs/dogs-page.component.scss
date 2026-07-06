@@ -55,11 +55,15 @@ p {
 }
 
 .dogs-page__filters {
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
 .filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   border: 1px solid #8ca9cc;
   border-radius: 999px;
   background: #f5f9ff;
@@ -68,11 +72,41 @@ p {
   min-height: 44px;
   cursor: pointer;
   font-size: 0.95rem;
+  font-family: inherit;
 }
 
 .filter-btn--active {
   background: #143a62;
   color: #ffffff;
+  border-color: #143a62;
+}
+
+.filter-btn--ppp.filter-btn--active {
+  background: #7a1414;
+  border-color: #5a0e0e;
+}
+
+.filter-btn--paw.filter-btn--active {
+  background: #b8891b;
+  border-color: #8f6a10;
+}
+
+.filter-btn__icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: #b8891b;
+  display: block;
+  flex: 0 0 auto;
+}
+
+.filter-btn--paw.filter-btn--active .filter-btn__icon {
+  color: #fff2c8;
+}
+
+.filter-btn--clear {
+  background: transparent;
+  border-style: dashed;
+  color: #5b7290;
 }
 
 .dogs-page__empty {
@@ -148,10 +182,6 @@ p {
 @media (max-width: 720px) {
   .dogs-page__filters {
     width: 100%;
-
-    .filter-btn {
-      flex: 1 1 0;
-    }
   }
 
   .dogs-page__stats {

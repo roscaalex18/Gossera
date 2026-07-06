@@ -26,6 +26,7 @@ export interface CreateDogInput {
   bozalObligatorio?: boolean;
   cuidadoMachos?: boolean;
   cuidadoHembras?: boolean;
+  destacado?: boolean;
 }
 
 /** Fields the UI can patch on an existing dog. */
@@ -151,7 +152,8 @@ export class DogRepositoryService {
       esPPP: input.esPPP ?? false,
       bozalObligatorio: input.bozalObligatorio ?? false,
       cuidadoMachos: input.cuidadoMachos ?? false,
-      cuidadoHembras: input.cuidadoHembras ?? false
+      cuidadoHembras: input.cuidadoHembras ?? false,
+      destacado: input.destacado ?? false
     };
 
     // Optimistic add.
@@ -258,6 +260,31 @@ export class DogRepositoryService {
     if (error) {
       this.error.set(error.message);
       void this.refresh();
+    }
+  }
+
+  /**
+   * Alterna la flag `destacado` (prioridad máxima → fija arriba en el
+   * listado). Optimista con rollback si falla la escritura.
+   */
+  async toggleDestacado(id: string): Promise<void> {
+    const current = this.dogs().find((d) => d.id === id);
+    if (!current) return;
+
+    const next = !current.destacado;
+    const previous = this.dogs();
+    this.dogs.update((list) =>
+      list.map((d) => (d.id === id ? { ...d, destacado: next } : d))
+    );
+
+    const { error } = await this.supabase
+      .from('dogs')
+      .update({ destacado: next })
+      .eq('id', id);
+
+    if (error) {
+      this.error.set(error.message);
+      this.dogs.set(previous);
     }
   }
 
@@ -408,7 +435,8 @@ function loadCache(): Dog[] {
       esPPP: d.esPPP ?? false,
       bozalObligatorio: d.bozalObligatorio ?? false,
       cuidadoMachos: d.cuidadoMachos ?? false,
-      cuidadoHembras: d.cuidadoHembras ?? false
+      cuidadoHembras: d.cuidadoHembras ?? false,
+      destacado: d.destacado ?? false
     }));
   } catch {
     return [];
