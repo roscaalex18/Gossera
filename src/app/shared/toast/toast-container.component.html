@@ -1,0 +1,19 @@
+<div class="toast-container" role="status" aria-live="polite" aria-atomic="false">
+  @for (t of toasts(); track t.id) {
+    <button
+      type="button"
+      class="toast toast--{{ t.variant }}"
+      (click)="dismiss(t.id)"
+      [attr.aria-label]="'Cerrar aviso: ' + t.message"
+    >
+      <span class="toast__icon" aria-hidden="true">
+        @switch (t.variant) {
+          @case ('success') { ✓ }
+          @case ('error') { ! }
+          @default { i }
+        }
+      </span>
+      <span class="toast__msg">{{ t.message }}</span>
+    </button>
+  }
+</div>

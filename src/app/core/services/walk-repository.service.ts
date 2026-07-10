@@ -2,6 +2,7 @@ import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { Walk } from '../models/walk.model';
 import { SUPABASE_CLIENT } from '../supabase/supabase.client';
+import { ToastService } from '../../shared/toast/toast.service';
 import { ActivityLogService } from './activity-log.service';
 import { AuthService } from './auth.service';
 import { DogRepositoryService } from './dog-repository.service';
@@ -28,6 +29,7 @@ export class WalkRepositoryService {
   private readonly auth = inject(AuthService);
   private readonly activityLog = inject(ActivityLogService);
   private readonly dogRepository = inject(DogRepositoryService);
+  private readonly toast = inject(ToastService);
 
   readonly walks = signal<Walk[]>(loadCache());
 
@@ -118,14 +120,24 @@ export class WalkRepositoryService {
     const saved = rowToWalk(data as WalkRow);
     this.walks.update((list) => [saved, ...list.filter((w) => w.id !== optimistic.id)]);
 
-    const dogName = this.dogRepository.dogs().find((d) => d.id === dogId)?.nombre;
+    const dog = this.dogRepository.dogs().find((d) => d.id === dogId);
+
+    // Efecto colateral: si el perro estaba destacado (prioridad máxima),
+    // el paseo resuelve la urgencia → quitamos la huella automáticamente.
+    // Silencioso (sin activity log propio) porque `walk.log` ya cuenta la
+    // acción; el user no necesita ver "quitó prioridad" además.
+    if (dog?.destacado) {
+      await this.dogRepository.setDestacado(dogId, false);
+    }
+
     this.activityLog.log({
       action: 'walk.log',
       entityType: 'walk',
       entityId: saved.id,
-      summary: dogName ? `Paseó a ${dogName}` : `Registró paseo de ${dogId}`,
+      summary: dog?.nombre ? `Paseó a ${dog.nombre}` : `Registró paseo de ${dogId}`,
       metadata: { dogId, notas: notas?.trim() || undefined }
     });
+    this.toast.success(dog?.nombre ? `Paseo de ${dog.nombre} registrado` : 'Paseo registrado');
 
     return { ok: true, walk: saved };
   }
@@ -167,6 +179,7 @@ export class WalkRepositoryService {
           paseadoPor: target.paseadoPor
         }
       });
+      this.toast.success(dogName ? `Paseo de ${dogName} eliminado` : 'Paseo eliminado');
     }
 
     return { ok: true };
@@ -174,12 +187,22 @@ export class WalkRepositoryService {
 
   /**
    * Edita un paseo existente. Se puede cambiar la fecha (para marcarlo en
-   * el pasado si se olvidó registrar en su momento) y las notas.
-   * Si la fecha cambia, recalcula `dogs.ultimo_paseo` para el perro.
+   * el pasado si se olvidó registrar en su momento), las notas y la persona
+   * que lo paseó (para atribuirlo a otro voluntario a posteriori). Si la
+   * fecha cambia, recalcula `dogs.ultimo_paseo` para el perro.
+   *
+   * `paseadoPor` acepta:
+   *   - `undefined` → no toca ese campo.
+   *   - `null`      → borra el atributo (paseo sin autor).
+   *   - `string`    → email/usuario. Al cambiarlo, la columna `paseado_por`
+   *                   (FK UUID a auth.users) se pone a null porque desde el
+   *                   cliente no podemos resolver ese texto a un UUID real;
+   *                   la fuente de verdad para la UI pasa a ser
+   *                   `paseado_por_email`.
    */
   async updateWalk(
     id: string,
-    patch: { fecha?: string; notas?: string | null }
+    patch: { fecha?: string; notas?: string | null; paseadoPor?: string | null }
   ): Promise<{ ok: true } | { ok: false; message: string }> {
     const previous = this.walks();
     const current = previous.find((w) => w.id === id);
@@ -191,7 +214,11 @@ export class WalkRepositoryService {
       notas:
         patch.notas === undefined
           ? current.notas
-          : patch.notas ?? undefined
+          : patch.notas ?? undefined,
+      paseadoPor:
+        patch.paseadoPor === undefined
+          ? current.paseadoPor
+          : patch.paseadoPor ?? undefined
     };
 
     // Optimistic update.
@@ -200,6 +227,11 @@ export class WalkRepositoryService {
     const row: Partial<WalkRow> = {};
     if (patch.fecha !== undefined) row.fecha = patch.fecha;
     if (patch.notas !== undefined) row.notas = patch.notas;
+    if (patch.paseadoPor !== undefined) {
+      row.paseado_por_email = patch.paseadoPor;
+      // El FK a auth.users deja de ser fiable si sobrescribimos el email.
+      row.paseado_por = null;
+    }
 
     const { error } = await this.supabase.from('walks').update(row).eq('id', id);
     if (error) {
@@ -223,9 +255,11 @@ export class WalkRepositoryService {
         dogId: current.dogId,
         oldFecha: current.fecha,
         newFecha: next.fecha,
-        notasChanged: patch.notas !== undefined
+        notasChanged: patch.notas !== undefined,
+        paseadoPorChanged: patch.paseadoPor !== undefined
       }
     });
+    this.toast.success(dogName ? `Paseo de ${dogName} actualizado` : 'Paseo actualizado');
 
     return { ok: true };
   }

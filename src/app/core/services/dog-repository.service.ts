@@ -3,6 +3,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 import { Dog, DogEstado } from '../models/dog.model';
 import { SUPABASE_CLIENT } from '../supabase/supabase.client';
 import { DogRow, dogToRow, rowToDog } from '../supabase/supabase.mappers';
+import { ToastService } from '../../shared/toast/toast.service';
 import { ActivityLogService } from './activity-log.service';
 
 const CACHE_KEY = 'gossera.dogs.cache.v1';
@@ -65,6 +66,7 @@ export type UpdateDogPatch = Partial<
 export class DogRepositoryService {
   private readonly supabase = inject(SUPABASE_CLIENT);
   private readonly activityLog = inject(ActivityLogService);
+  private readonly toast = inject(ToastService);
 
   readonly dogs = signal<Dog[]>(loadCache());
   readonly status = signal<LoadStatus>('idle');
@@ -175,6 +177,7 @@ export class DogRepositoryService {
       summary: `Añadió a ${dog.nombre}`,
       metadata: { codigo: dog.codigo, raza: dog.raza }
     });
+    this.toast.success(`${dog.nombre} añadido`);
 
     return { ok: true, id };
   }
@@ -257,6 +260,7 @@ export class DogRepositoryService {
       summary,
       metadata: { fields }
     });
+    this.toast.success('Ficha guardada');
 
     return { ok: true };
   }
@@ -281,6 +285,7 @@ export class DogRepositoryService {
       summary: target ? `Eliminó a ${target.nombre}` : `Eliminó perro ${id}`,
       metadata: target ? { codigo: target.codigo, raza: target.raza } : undefined
     });
+    this.toast.success(target ? `${target.nombre} eliminado` : 'Perro eliminado');
   }
 
   /** Mark a dog as walked (updates `ultimoPaseo` and clears the pending flag). */
@@ -307,28 +312,15 @@ export class DogRepositoryService {
 
   /**
    * Alterna la flag `destacado` (prioridad máxima → fija arriba en el
-   * listado). Optimista con rollback si falla la escritura.
+   * listado) y lo registra en el activity log.
    */
   async toggleDestacado(id: string): Promise<void> {
     const current = this.dogs().find((d) => d.id === id);
     if (!current) return;
 
     const next = !current.destacado;
-    const previous = this.dogs();
-    this.dogs.update((list) =>
-      list.map((d) => (d.id === id ? { ...d, destacado: next } : d))
-    );
-
-    const { error } = await this.supabase
-      .from('dogs')
-      .update({ destacado: next })
-      .eq('id', id);
-
-    if (error) {
-      this.error.set(error.message);
-      this.dogs.set(previous);
-      return;
-    }
+    const ok = await this.setDestacado(id, next);
+    if (!ok) return;
 
     this.activityLog.log({
       action: 'dog.destacar',
@@ -339,6 +331,39 @@ export class DogRepositoryService {
         : `Quitó prioridad máxima a ${current.nombre}`,
       metadata: { value: next }
     });
+    this.toast.success(
+      next
+        ? `${current.nombre} marcado como prioridad máxima`
+        : `Prioridad quitada a ${current.nombre}`
+    );
+  }
+
+  /**
+   * Fuerza `destacado` a un valor concreto. Optimista con rollback si falla.
+   * **No** genera entrada en el activity log — sirve para efectos colaterales
+   * (p.ej. limpiar el flag automáticamente al registrar un paseo). Si no
+   * cambia el valor, es un no-op. Devuelve `true` si la persistencia fue OK.
+   */
+  async setDestacado(id: string, value: boolean): Promise<boolean> {
+    const current = this.dogs().find((d) => d.id === id);
+    if (!current || current.destacado === value) return true;
+
+    const previous = this.dogs();
+    this.dogs.update((list) =>
+      list.map((d) => (d.id === id ? { ...d, destacado: value } : d))
+    );
+
+    const { error } = await this.supabase
+      .from('dogs')
+      .update({ destacado: value })
+      .eq('id', id);
+
+    if (error) {
+      this.error.set(error.message);
+      this.dogs.set(previous);
+      return false;
+    }
+    return true;
   }
 
   // ==========================================================================

@@ -29,6 +29,7 @@ p {
 .walks-page__stats {
   display: flex;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .walks-page__stats article {
@@ -48,6 +49,83 @@ p {
 .walks-page__stats strong {
   font-size: 1.25rem;
   color: #0f2e4d;
+}
+
+/* ==================== Ranking mensual ==================== */
+.walks-page__ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.walks-page__ranking-title {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #0f2e4d;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.walks-page__ranking-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.walks-page__ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 10px;
+  padding: 0.5rem 0.7rem;
+  min-height: 44px;
+}
+
+.walks-page__ranking-item--first {
+  background: #fff9db;
+  border-color: #e0d3a3;
+}
+
+.walks-page__ranking-pos {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: #eaf2fd;
+  color: #143a62;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.walks-page__ranking-item--first .walks-page__ranking-pos {
+  background: #b8891b;
+  color: #fff9db;
+}
+
+.walks-page__ranking-name {
+  flex: 1;
+  min-width: 0;
+  color: #0f2e4d;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.walks-page__ranking-count {
+  color: #5b7290;
+  font-size: 0.82rem;
+  font-weight: 700;
+  flex: 0 0 auto;
 }
 
 .walks-page__toolbar {

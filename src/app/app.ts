@@ -2,10 +2,11 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ActivityLogService } from './core/services/activity-log.service';
 import { AuthService } from './core/services/auth.service';
+import { ToastContainerComponent } from './shared/toast/toast-container.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, ToastContainerComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

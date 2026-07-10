@@ -17,6 +17,25 @@
     </div>
   </header>
 
+  @if (auth.isAdmin() && monthlyRanking().length > 0) {
+    <section class="walks-page__ranking" aria-label="Ranking mensual de paseos">
+      <h2 class="walks-page__ranking-title">
+        Ranking de {{ currentMonthName() }}
+      </h2>
+      <ol class="walks-page__ranking-list">
+        @for (u of monthlyRanking(); track u.email; let i = $index) {
+          <li class="walks-page__ranking-item" [class.walks-page__ranking-item--first]="i === 0">
+            <span class="walks-page__ranking-pos">{{ i + 1 }}</span>
+            <span class="walks-page__ranking-name">{{ u.displayName }}</span>
+            <span class="walks-page__ranking-count">
+              {{ u.count }} {{ u.count === 1 ? 'paseo' : 'paseos' }}
+            </span>
+          </li>
+        }
+      </ol>
+    </section>
+  }
+
   <div class="walks-page__toolbar">
     <input
       type="search"
@@ -56,6 +75,18 @@
                     class="walk-item__input"
                     [ngModel]="editFecha()"
                     (ngModelChange)="editFecha.set($event)"
+                    [disabled]="savingEdit()"
+                  />
+                </label>
+                <label class="walk-item__field">
+                  <span>Paseado por <small>(usuario o email)</small></span>
+                  <input
+                    type="text"
+                    class="walk-item__input"
+                    placeholder="p.ej. juana"
+                    autocomplete="off"
+                    [ngModel]="editPaseadoPor()"
+                    (ngModelChange)="editPaseadoPor.set($event)"
                     [disabled]="savingEdit()"
                   />
                 </label>

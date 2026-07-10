@@ -14,6 +14,9 @@ import { NewDogSheetComponent } from './new-dog-sheet.component';
 export class DogsPageComponent {
   private readonly dogRepository = inject(DogRepositoryService);
 
+  // === Búsqueda ===
+  readonly searchQuery = signal('');
+
   // === Filtros (multi-toggle) ===
   readonly onlyPending = signal(false);
   readonly onlyHighPriority = signal(false);
@@ -24,15 +27,27 @@ export class DogsPageComponent {
   readonly creatingNew = signal(false);
 
   /**
-   * Lista visible: sólo perros activos, aplicando los filtros activos y
+   * Lista visible: sólo perros activos, aplicando búsqueda + filtros y
    * ordenando destacados primero y luego por urgencia de paseo
    * (días desde el último paseo / intervalo objetivo según prioridad).
-   * Cuanto mayor el score, más urgente → aparece antes.
    */
   readonly dogs = computed<Dog[]>(() => {
     const now = Date.now();
     let list = this.dogRepository.dogs().filter((d) => d.estado === 'activo');
 
+    // ---- Búsqueda por nombre / código / raza / color ----
+    const q = this.searchQuery().trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (d) =>
+          d.nombre.toLowerCase().includes(q) ||
+          (d.codigo ?? '').toLowerCase().includes(q) ||
+          d.raza.toLowerCase().includes(q) ||
+          (d.color ?? '').toLowerCase().includes(q)
+      );
+    }
+
+    // ---- Flags booleanos ----
     if (this.onlyPending()) list = list.filter((d) => isWalkOverdue(d, now));
     if (this.onlyHighPriority()) list = list.filter((d) => d.prioridadPaseo === 'alta');
     if (this.onlyPPP()) list = list.filter((d) => d.esPPP);
@@ -48,10 +63,6 @@ export class DogsPageComponent {
     () => this.dogRepository.dogs().filter((d) => d.estado === 'activo').length
   );
 
-  /**
-   * Perros a los que ya les toca paseo (score ≥ 1 según su prioridad).
-   * Se recalcula si cambia `ultimoPaseo` o `prioridadPaseo` de cualquier perro.
-   */
   readonly pendingDogs = computed(() => {
     const now = Date.now();
     return this.dogRepository
@@ -61,11 +72,20 @@ export class DogsPageComponent {
 
   readonly hasActiveFilter = computed(
     () =>
+      !!this.searchQuery().trim() ||
       this.onlyPending() ||
       this.onlyHighPriority() ||
       this.onlyPPP() ||
       this.onlyDestacados()
   );
+
+  onSearch(event: Event): void {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
+  }
+
+  clearSearch(): void {
+    this.searchQuery.set('');
+  }
 
   toggleOnlyPending(): void {
     this.onlyPending.update((v) => !v);
@@ -84,6 +104,7 @@ export class DogsPageComponent {
   }
 
   clearFilters(): void {
+    this.searchQuery.set('');
     this.onlyPending.set(false);
     this.onlyHighPriority.set(false);
     this.onlyPPP.set(false);

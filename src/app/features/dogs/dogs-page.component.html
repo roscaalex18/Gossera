@@ -17,6 +17,25 @@
     </div>
   </header>
 
+  <div class="dogs-page__search">
+    <input
+      type="search"
+      class="dogs-page__search-input"
+      placeholder="Buscar por nombre, código, raza o color…"
+      [value]="searchQuery()"
+      (input)="onSearch($event)"
+      aria-label="Buscar perro"
+    />
+    @if (searchQuery()) {
+      <button
+        type="button"
+        class="dogs-page__search-clear"
+        (click)="clearSearch()"
+        aria-label="Limpiar búsqueda"
+      >×</button>
+    }
+  </div>
+
   <div class="dogs-page__filters" role="group" aria-label="Filtrar perros">
     <!-- <button
       type="button"
