@@ -83,6 +83,16 @@
       </svg>
     </button>
 
+    <button
+      type="button"
+      class="filter-btn filter-btn--no-patio"
+      [class.filter-btn--active]="onlyNoPatio()"
+      [attr.aria-pressed]="onlyNoPatio()"
+      (click)="toggleOnlyNoPatio()"
+    >
+      🏠✕
+    </button>
+
     @if (hasActiveFilter()) {
       <button
         type="button"

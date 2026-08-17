@@ -146,6 +146,15 @@
             />
             <span>Cuidado con hembras</span>
           </label>
+          <label class="flag-check">
+            <input
+              type="checkbox"
+              name="sinPatio"
+              [ngModel]="sinPatio()"
+              (ngModelChange)="sinPatio.set($event)"
+            />
+            <span>Sin patio 🏠✕</span>
+          </label>
         </div>
       </fieldset>
 

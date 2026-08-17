@@ -26,6 +26,7 @@ export interface DogRow {
   cuidado_machos: boolean | null;
   cuidado_hembras: boolean | null;
   destacado: boolean | null;
+  sin_patio: boolean | null;
 }
 
 export function rowToDog(row: DogRow): Dog {
@@ -49,7 +50,8 @@ export function rowToDog(row: DogRow): Dog {
     bozalObligatorio: row.bozal_obligatorio ?? false,
     cuidadoMachos: row.cuidado_machos ?? false,
     cuidadoHembras: row.cuidado_hembras ?? false,
-    destacado: row.destacado ?? false
+    destacado: row.destacado ?? false,
+    sinPatio: row.sin_patio ?? false
   };
 }
 
@@ -74,6 +76,7 @@ export function dogToRow(dog: Dog): DogRow {
     bozal_obligatorio: dog.bozalObligatorio,
     cuidado_machos: dog.cuidadoMachos,
     cuidado_hembras: dog.cuidadoHembras,
-    destacado: dog.destacado
+    destacado: dog.destacado,
+    sin_patio: dog.sinPatio
   };
 }

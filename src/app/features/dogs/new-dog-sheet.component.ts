@@ -30,6 +30,7 @@ export class NewDogSheetComponent {
   readonly bozalObligatorio = signal(false);
   readonly cuidadoMachos = signal(false);
   readonly cuidadoHembras = signal(false);
+  readonly sinPatio = signal(false);
 
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -62,7 +63,8 @@ export class NewDogSheetComponent {
       esPPP: this.esPPP(),
       bozalObligatorio: this.bozalObligatorio(),
       cuidadoMachos: this.cuidadoMachos(),
-      cuidadoHembras: this.cuidadoHembras()
+      cuidadoHembras: this.cuidadoHembras(),
+      sinPatio: this.sinPatio()
     };
 
     const result = await this.dogRepository.createDog(input);

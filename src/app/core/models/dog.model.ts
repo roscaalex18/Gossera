@@ -79,4 +79,6 @@ export interface Dog {
    * principio del listado sin importar su prioridad habitual.
    */
   destacado: boolean;
+  /** El perro no tiene acceso a patio (necesita más paseos). */
+  sinPatio: boolean;
 }

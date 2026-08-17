@@ -29,6 +29,7 @@ export interface CreateDogInput {
   cuidadoMachos?: boolean;
   cuidadoHembras?: boolean;
   destacado?: boolean;
+  sinPatio?: boolean;
 }
 
 /** Fields the UI can patch on an existing dog. */
@@ -50,6 +51,7 @@ export type UpdateDogPatch = Partial<
     | 'bozalObligatorio'
     | 'cuidadoMachos'
     | 'cuidadoHembras'
+    | 'sinPatio'
   >
 >;
 
@@ -157,7 +159,8 @@ export class DogRepositoryService {
       bozalObligatorio: input.bozalObligatorio ?? false,
       cuidadoMachos: input.cuidadoMachos ?? false,
       cuidadoHembras: input.cuidadoHembras ?? false,
-      destacado: input.destacado ?? false
+      destacado: input.destacado ?? false,
+      sinPatio: input.sinPatio ?? false
     };
 
     // Optimistic add.
@@ -234,6 +237,7 @@ export class DogRepositoryService {
     if (applied.bozalObligatorio !== undefined) row.bozal_obligatorio = applied.bozalObligatorio;
     if (applied.cuidadoMachos !== undefined) row.cuidado_machos = applied.cuidadoMachos;
     if (applied.cuidadoHembras !== undefined) row.cuidado_hembras = applied.cuidadoHembras;
+    if (applied.sinPatio !== undefined) row.sin_patio = applied.sinPatio;
 
     const { error } = await this.supabase.from('dogs').update(row).eq('id', id);
     if (error) {
@@ -514,7 +518,8 @@ function loadCache(): Dog[] {
       bozalObligatorio: d.bozalObligatorio ?? false,
       cuidadoMachos: d.cuidadoMachos ?? false,
       cuidadoHembras: d.cuidadoHembras ?? false,
-      destacado: d.destacado ?? false
+      destacado: d.destacado ?? false,
+      sinPatio: d.sinPatio ?? false
     }));
   } catch {
     return [];

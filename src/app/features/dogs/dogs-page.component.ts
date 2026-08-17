@@ -22,6 +22,7 @@ export class DogsPageComponent {
   readonly onlyHighPriority = signal(false);
   readonly onlyPPP = signal(false);
   readonly onlyDestacados = signal(false);
+  readonly onlyNoPatio = signal(false);
 
   readonly editingDogId = signal<string | null>(null);
   readonly creatingNew = signal(false);
@@ -52,6 +53,7 @@ export class DogsPageComponent {
     if (this.onlyHighPriority()) list = list.filter((d) => d.prioridadPaseo === 'alta');
     if (this.onlyPPP()) list = list.filter((d) => d.esPPP);
     if (this.onlyDestacados()) list = list.filter((d) => d.destacado);
+    if (this.onlyNoPatio()) list = list.filter((d) => d.sinPatio);
 
     return [...list].sort((a, b) => {
       if (a.destacado !== b.destacado) return a.destacado ? -1 : 1;
@@ -76,7 +78,8 @@ export class DogsPageComponent {
       this.onlyPending() ||
       this.onlyHighPriority() ||
       this.onlyPPP() ||
-      this.onlyDestacados()
+      this.onlyDestacados() ||
+      this.onlyNoPatio()
   );
 
   onSearch(event: Event): void {
@@ -103,12 +106,17 @@ export class DogsPageComponent {
     this.onlyDestacados.update((v) => !v);
   }
 
+  toggleOnlyNoPatio(): void {
+    this.onlyNoPatio.update((v) => !v);
+  }
+
   clearFilters(): void {
     this.searchQuery.set('');
     this.onlyPending.set(false);
     this.onlyHighPriority.set(false);
     this.onlyPPP.set(false);
     this.onlyDestacados.set(false);
+    this.onlyNoPatio.set(false);
   }
 
   openDetail(dogId: string): void {

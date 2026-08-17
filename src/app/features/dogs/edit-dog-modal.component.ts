@@ -36,6 +36,7 @@ export class EditDogModalComponent {
   readonly bozalObligatorio = signal(false);
   readonly cuidadoMachos = signal(false);
   readonly cuidadoHembras = signal(false);
+  readonly sinPatio = signal(false);
   readonly notas = signal('');
 
   // === Estado UI ===
@@ -66,6 +67,7 @@ export class EditDogModalComponent {
         this.bozalObligatorio.set(d.bozalObligatorio);
         this.cuidadoMachos.set(d.cuidadoMachos);
         this.cuidadoHembras.set(d.cuidadoHembras);
+        this.sinPatio.set(d.sinPatio);
         this.notas.set(d.notas ?? '');
       });
       this.hydrated = true;
@@ -108,7 +110,8 @@ export class EditDogModalComponent {
       esPPP: this.esPPP(),
       bozalObligatorio: this.bozalObligatorio(),
       cuidadoMachos: this.cuidadoMachos(),
-      cuidadoHembras: this.cuidadoHembras()
+      cuidadoHembras: this.cuidadoHembras(),
+      sinPatio: this.sinPatio()
     };
 
     const result = await this.dogRepository.updateDog(current.id, patch);

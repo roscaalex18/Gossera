@@ -53,6 +53,13 @@
             aria-label="Perro potencialmente peligroso"
           >PPP</span>
         }
+        @if (dog().sinPatio) {
+          <span
+            class="no-patio-pill"
+            title="Sin patio"
+            aria-label="Sin patio"
+          >🏠✕</span>
+        }
         <span class="priority-pill" [ngClass]="priorityClass(dog().prioridadPaseo)">
           Prioridad {{ dog().prioridadPaseo }}
         </span>

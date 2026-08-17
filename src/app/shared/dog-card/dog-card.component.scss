@@ -159,6 +159,19 @@
   display: block;
 }
 
+.no-patio-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.2rem 0.55rem;
+  white-space: nowrap;
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
 .dog-card__flags {
   display: flex;
   flex-wrap: wrap;
@@ -326,7 +339,8 @@
 
   .ppp-pill,
   .priority-pill,
-  .paw-pill {
+  .paw-pill,
+  .no-patio-pill {
     font-size: 0.66rem;
     padding: 0.15rem 0.45rem;
   }
